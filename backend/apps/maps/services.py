@@ -12,7 +12,7 @@ class HogSurveyService:
         return report["imported"], report["errors"]
 
     @staticmethod
-    def _compute_transport_volume():
+    def _compute_transport_volume(year=None, quarter=None):
         """
         Calculates the total number of pigs being transported out of each barangay
         based on active/released permits.
@@ -24,7 +24,13 @@ class HogSurveyService:
                 PermitApplication.Status.PAYMENT_PENDING,
                 PermitApplication.Status.RELEASED,
             ]
-        ).values("barangay__name").annotate(
+        )
+        if year is not None and quarter is not None:
+            active_origins = active_origins.filter(
+                application__transport_date__year=year,
+                application__transport_date__quarter=quarter,
+            )
+        active_origins = active_origins.values("barangay__name").annotate(
             total_transported=Sum("number_of_pigs")
         )
 
@@ -65,10 +71,13 @@ class HogSurveyService:
         return volume_payload
 
     @staticmethod
-    def calculate_transport_volume():
+    def calculate_transport_volume(year=None, quarter=None):
+        cache_key = "maps:transport_volume"
+        if year is not None and quarter is not None:
+            cache_key = f"{cache_key}:{year}:q{quarter}"
         return get_or_set_cached_data(
-            "maps:transport_volume",
-            HogSurveyService._compute_transport_volume,
+            cache_key,
+            lambda: HogSurveyService._compute_transport_volume(year, quarter),
             timeout=120,
         )
 
@@ -107,9 +116,9 @@ class HogSurveyService:
 
     @staticmethod
     def get_aggregated_survey_data(target_month=None, start_month=None, end_month=None,
-                                   target_season=None, target_year=None, compare_year=None,
+                                   target_season=None, target_year=None, target_quarter=None, compare_year=None,
                                    barangay_ids=None):
-        from .census import census_rows, quarter_of
+        from .census import census_rows, latest_completed_period
         from rest_framework.exceptions import ValidationError
         queryset = HogSurvey.objects.filter(survey_date__isnull=False)
         barangays = Barangay.objects.all()
@@ -135,18 +144,25 @@ class HogSurveyService:
             year = int(target_year) if target_year else None
             if year is not None and not 1 <= year <= 9999:
                 raise ValueError
-            if compare_year:
+            quarter = int(target_quarter) if target_quarter not in [None, ""] else None
+            if quarter is not None:
+                if year is None or not 1 <= quarter <= 4:
+                    raise ValueError
+                period = (year, quarter)
+            elif compare_year:
                 other_year = int(compare_year)
                 if not year or not 1 <= other_year <= 9999:
                     raise ValueError
+                completed = latest_completed_period(queryset)
                 quarters = set(queryset.filter(survey_date__year=year).values_list('survey_date__quarter', flat=True))
                 other = set(queryset.filter(survey_date__year=other_year).values_list('survey_date__quarter', flat=True))
+                if completed:
+                    quarters = {q for q in quarters if (year, q) <= completed}
+                    other = {q for q in other if (other_year, q) <= completed}
                 common = quarters & other
                 period = (year, max(common)) if common else None
             else:
-                selected = queryset.filter(survey_date__year=year) if year else queryset
-                latest = selected.order_by('-survey_date').values_list('survey_date', flat=True).first()
-                period = quarter_of(latest) if latest else None
+                period = latest_completed_period(queryset, year=year)
         except (ValueError, TypeError):
             raise ValidationError('Invalid census calendar filters.') from None
         # Calendar filters select a quarter. All observations in that quarter count.

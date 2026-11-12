@@ -13,7 +13,7 @@ from rest_framework.test import APIClient
 from apps.dashboard.insights_engine import RoleMetricExtractor
 from apps.dashboard.models import CachedInsight
 from apps.dashboard.services import get_agri_dashboard_data
-from apps.maps.census import classify, current_census
+from apps.maps.census import classify, current_census, latest_completed_period
 from apps.maps.models import Barangay, HogSurvey
 from apps.maps.services import HogSurveyService
 from apps.maps.survey_generation import POPULATION_TARGETS, generate_surveys
@@ -138,6 +138,68 @@ def test_common_quarter_comparison_and_filter_validation():
     from rest_framework.exceptions import ValidationError
     with pytest.raises(ValidationError):
         HogSurveyService.get_aggregated_survey_data(target_month=13)
+
+
+@pytest.mark.django_db
+@patch("apps.maps.census.timezone.localdate", return_value=date(2026, 11, 12))
+def test_quarter_selection_period_metadata_and_completed_default(_localdate):
+    bucal = Barangay.objects.create(name="Bucal")
+    other = Barangay.objects.create(name="Other")
+    observation(bucal, "Elena", "2026-09-30", 10604)
+    observation(bucal, "Elena", "2026-10-20", 6)
+    observation(other, "Future", "2027-01-02", 99)
+    user = get_user_model().objects.create_user(username="agri-quarter", role="Agri")
+    client = APIClient()
+    client.force_authenticate(user)
+
+    default_rows = client.get("/hog-survey/survey_data/").data
+    assert default_rows[0]["quarter"] == 3
+    assert default_rows[0]["total_pigs"] == 10604
+    assert default_rows[0]["period_status"] == "completed"
+
+    q4 = client.get("/hog-survey/survey_data/?year=2026&quarter=4")
+    assert q4.status_code == 200
+    assert q4.data[0]["total_pigs"] == 6
+    assert q4.data[0]["coverage"] == {"observed_barangays": 1, "total_barangays": 2}
+    assert q4.data[0]["period_status"] == "in_progress"
+    assert q4.data[1]["total_pigs"] is None
+    assert q4.data[1]["density_level"] == "No data"
+
+    periods = client.get("/hog-survey/periods/?year=2026").data
+    assert periods["default_period"] == {"year": 2026, "quarter": 3}
+    assert [(p["quarter"], p["period_status"]) for p in periods["periods"]] == [
+        (4, "in_progress"), (3, "completed")
+    ]
+    assert latest_completed_period() == (2026, 3)
+    assert client.get("/hog-survey/survey_data/?year=2026&quarter=5").status_code == 400
+    assert client.get("/hog-survey/survey_data/?quarter=3").status_code == 400
+    assert client.get("/hog-survey/periods/?year=bad").status_code == 400
+
+
+@pytest.mark.django_db
+@patch("apps.maps.census.timezone.localdate", return_value=date(2026, 2, 15))
+def test_default_is_empty_before_first_observed_quarter_has_ended(_localdate):
+    barangay = Barangay.objects.create(name="Bucal")
+    observation(barangay, "Elena", "2026-02-01", 5)
+    assert latest_completed_period() is None
+    assert current_census()[0]["total_pigs"] is None
+    explicit = HogSurveyService.get_aggregated_survey_data(target_year=2026, target_quarter=1)[0]
+    assert explicit["total_pigs"] == 5
+    assert explicit["period_status"] == "in_progress"
+
+
+@pytest.mark.django_db
+def test_each_explicit_quarter_returns_only_its_own_observations():
+    barangay = Barangay.objects.create(name="Bucal")
+    for quarter, when in enumerate(["2026-03-31", "2026-06-30", "2026-09-30", "2026-12-31"], 1):
+        observation(barangay, f"Raiser Q{quarter}", when, quarter)
+    for quarter in range(1, 5):
+        row = HogSurveyService.get_aggregated_survey_data(
+            target_year=2026, target_quarter=quarter,
+        )[0]
+        assert row["quarter"] == quarter
+        assert row["total_pigs"] == quarter
+        assert row["raiser_count"] == 1
 
 
 @pytest.mark.django_db

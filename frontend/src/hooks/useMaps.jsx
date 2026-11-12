@@ -14,56 +14,38 @@ export const useGetMaps = () => {
 }
 
 
-export const useGetHogSurvey = (startMonth, endMonth, season, year, compareYear) => {
-    // Only fetch if:
-    // 1. A specific season is selected (wet/dry)
-    // 2. OR both months are empty (initial full year view)
-    // 3. OR both months are selected (complete custom range)
-    // 4. OR a year is selected
-    const isReady = (season !== 'all') || (!startMonth && !endMonth) || (!!startMonth && !!endMonth) || !!year;
-
+export const useGetHogSurvey = (year, quarter) => {
     return useQuery({
-        // The array MUST include months, season and year so React Query knows to re-fetch when they change
-        queryKey: ['hog-survey', startMonth, endMonth, season, year, compareYear],
+        queryKey: ['hog-survey', year, quarter],
         queryFn: async () => {
-            // Build the params dynamically
-            const params = {};
-            if (startMonth) params.start_month = startMonth;
-            if (endMonth) params.end_month = endMonth;
-            if (season) params.season = season;
-            if (year) params.year = year;
-            if (compareYear) params.compare_year = compareYear;
-
-
-            // Make sure your Axios instance is pointing to the correct Django endpoint
-            const res = await api.get('/hog-survey/survey_data/', { params });
+            const res = await api.get('/hog-survey/survey_data/', { params: { year, quarter } });
             return res.data;
         },
-        // Important: this keeps the old map colors on screen while the new ones load
         placeholderData: keepPreviousData,
-        enabled: isReady,
+        enabled: Boolean(year && quarter),
         staleTime: 1000 * 60 * 5, // treat data as fresh for 5 mins
     })
 }
 
-export const useGetHogSurveyYears = () => {
+export const useGetHogSurveyPeriods = () => {
     return useQuery({
-        queryKey: ['hog-survey-years'],
+        queryKey: ['hog-survey-periods'],
         queryFn: async () => {
-            const res = await api.get('/hog-survey/years/');
+            const res = await api.get('/hog-survey/periods/');
             return res.data;
         },
-        staleTime: 1000 * 60 * 60, // Years don't change often, keep for 1 hour
+        staleTime: 1000 * 60 * 60,
     })
 }
 
-export const useGetTransportVolume = () => {
+export const useGetTransportVolume = (year, quarter) => {
     return useQuery({
-        queryKey: ['transport-volume'],
+        queryKey: ['transport-volume', year, quarter],
         queryFn: async () => {
-            const res = await api.get('/barangay/transport_volume/');
+            const res = await api.get('/barangay/transport_volume/', { params: { year, quarter } });
             return res.data;
         },
+        enabled: Boolean(year && quarter),
         staleTime: 1000 * 60 * 5,
     })
 }
@@ -95,6 +77,7 @@ export const useUploadHogSurvey = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['hog-survey'] });
             queryClient.invalidateQueries({ queryKey: ['hog-survey-years'] });
+            queryClient.invalidateQueries({ queryKey: ['hog-survey-periods'] });
             queryClient.invalidateQueries({ queryKey: ['barangay-census-history'] });
             queryClient.invalidateQueries({ queryKey: ['barangay-density-data'] });
             queryClient.invalidateQueries({ queryKey: ['agri_metrics'] });

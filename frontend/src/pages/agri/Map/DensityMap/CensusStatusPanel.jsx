@@ -2,6 +2,8 @@ import Skeleton from 'react-loading-skeleton';
 import { useRef } from "react";
 import { ArrowLeft, ArrowUpRight, Truck } from "lucide-react";
 
+const PERIOD_LABELS = { 1: 'Jan–Mar', 2: 'Apr–Jun', 3: 'Jul–Sep', 4: 'Oct–Dec' };
+
 const CensusStatusPanel = ({
     filters, totalPigs, operationalTakeaway, secondaryTakeaway, comparisonStats,
     survey = [], transportVolume = [], isMapDataUpdating = false,
@@ -9,7 +11,7 @@ const CensusStatusPanel = ({
     comparisonLoading = false, comparisonPlaceholder = false, comparisonError = false,
     transportLoading = false, transportError = false,
 }) => {
-    const { isCompareMode, selectedYear, baselineYear, selectedBarangay, setSelectedBarangay } = filters;
+    const { isCompareMode, selectedYear, selectedQuarter, baselineYear, selectedBarangay, setSelectedBarangay } = filters;
     const headingRef = useRef(null);
     const selectedRecord = selectedBarangay
         ? survey.find(row => row.barangay.toLowerCase() === selectedBarangay.toLowerCase()) : null;
@@ -50,10 +52,19 @@ const CensusStatusPanel = ({
                 </h2>
                 <p className="text-xs leading-relaxed text-stone-600">
                     {censusReady && periodRecord?.quarter
-                        ? `Q${periodRecord.quarter} ${periodRecord.year || selectedYear}${censusDate ? ` · Census dated ${censusDate}` : ''}`
+                        ? `${PERIOD_LABELS[periodRecord.quarter]} ${periodRecord.year || selectedYear}${censusDate ? ` · Census dated ${censusDate}` : ''}`
                         : `Selected year: ${selectedYear}`}
                 </p>
             </header>
+
+            {censusReady && periodRecord?.period_status === 'in_progress' && (
+                <div role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-900">
+                    <p className="text-xs font-semibold">In progress</p>
+                    <p className="mt-1 text-xs leading-relaxed">
+                        The {PERIOD_LABELS[periodRecord.quarter]} census is still open. {coverage?.observed_barangays || 0} of {coverage?.total_barangays || 0} barangays reporting.
+                    </p>
+                </div>
+            )}
 
             <div aria-busy={censusUpdating} className="space-y-5 py-5">
                 <p role="status" className={censusUpdating ? 'text-xs text-stone-600' : 'sr-only'}>
@@ -157,7 +168,7 @@ const CensusStatusPanel = ({
                                 {comparisonStats.storySummary && <p className="text-xs leading-relaxed text-stone-600">{comparisonStats.storySummary}</p>}
                             </>
                         ) : (
-                            <p className="leading-relaxed text-stone-600">No matching quarter with observations is available for these years and filters.</p>
+                            <p className="leading-relaxed text-stone-600">No matching census period with observations is available for these years.</p>
                         )}
                     </div>
                 )}
@@ -220,7 +231,7 @@ const CensusStatusPanel = ({
                 <div className="space-y-2 border-t border-stone-200 pt-4">
                     <h3 className="flex items-start gap-2 text-sm font-semibold">
                         <Truck size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-sky-700" />
-                        Pigs on issued/released permits
+                        Permit outflows · {PERIOD_LABELS[selectedQuarter]} {selectedYear}
                     </h3>
                     {transportLoading ? (
                         <p role="status" className="text-xs text-stone-600">Loading transport figures…</p>
@@ -231,7 +242,7 @@ const CensusStatusPanel = ({
                     ) : (
                         <p className="text-xs text-stone-600">Transport figures unavailable for this barangay.</p>
                     )}
-                    <p className="text-xs leading-relaxed text-stone-600">All dates; independent of census filters.</p>
+                    <p className="text-xs leading-relaxed text-stone-600">Uses the same period as the census map.</p>
                 </div>
             )}
         </section>

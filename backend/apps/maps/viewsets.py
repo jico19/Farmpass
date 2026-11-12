@@ -31,7 +31,18 @@ class BarangayViewSet(viewsets.ReadOnlyModelViewSet):
         Calculates the total number of pigs being transported out of each barangay
         based on active/released permits.
         """
-        volume_payload = HogSurveyService.calculate_transport_volume()
+        year = request.query_params.get("year")
+        quarter = request.query_params.get("quarter")
+        try:
+            year = int(year) if year not in [None, ""] else None
+            quarter = int(quarter) if quarter not in [None, ""] else None
+            if (year is None) != (quarter is None):
+                raise ValueError
+            if year is not None and (not 1 <= year <= 9999 or not 1 <= quarter <= 4):
+                raise ValueError
+        except (TypeError, ValueError):
+            raise ValidationError("Provide a valid census year and quarter together.") from None
+        volume_payload = HogSurveyService.calculate_transport_volume(year, quarter)
         return Response(volume_payload)
 
 
@@ -332,25 +343,44 @@ class HogSurveyViewSet(BaseModelViewSet):
     @action(detail=False, methods=["get"])
     def survey_data(self, request):
         """
-        API Endpoint: GET /api/current-density/?month={n}&season={wet|dry}&year={YYYY}
-        Returns aggregated pig population per barangay for the Leaflet heatmap,
-        including type breakdown and historical trends.
+        API Endpoint: GET /hog-survey/survey_data/?year={YYYY}&quarter={1..4}
+        Returns one exact census quarter, or the latest completed observed quarter.
         """
         target_month = request.query_params.get("month")
         start_month = request.query_params.get("start_month")
         end_month = request.query_params.get("end_month")
         target_season = request.query_params.get("season")
         target_year = request.query_params.get("year")
+        target_quarter = request.query_params.get("quarter")
 
         barangay_ids = [request.user.barangay_id] if request.user.role == "Barangay" else None
         # Calendar selection is municipal so a missing local quarter stays missing.
         payload = HogSurveyService.get_aggregated_survey_data(
             target_month=target_month, start_month=start_month, end_month=end_month,
             target_season=target_season, target_year=target_year,
+            target_quarter=target_quarter,
             compare_year=request.query_params.get("compare_year"),
             barangay_ids=barangay_ids,
         )
         return Response(payload)
+
+    @action(detail=False, methods=["get"])
+    def periods(self, request):
+        """Return observed year/quarter choices and the latest completed default."""
+        from .census import census_periods
+        year = request.query_params.get("year")
+        try:
+            year = int(year) if year not in [None, ""] else None
+            if year is not None and not 1 <= year <= 9999:
+                raise ValueError
+        except (TypeError, ValueError):
+            raise ValidationError("Invalid census year.") from None
+        periods, default_period = census_periods(year=year)
+        return Response({
+            "periods": periods,
+            "default_period": ({"year": default_period[0], "quarter": default_period[1]}
+                               if default_period else None),
+        })
 
     @action(detail=False, methods=["get"])
     def census_history(self, request):
