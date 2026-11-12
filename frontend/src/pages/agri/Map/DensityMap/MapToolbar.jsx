@@ -1,4 +1,11 @@
-import { Search, X, Calendar, Scale, RotateCcw, CloudRain, Sun, Upload, Map as MapIcon } from "lucide-react";
+import { Search, X, Calendar, Scale, RotateCcw, Upload, Map as MapIcon } from "lucide-react";
+
+const CENSUS_PERIODS = [
+    { quarter: 1, label: 'Jan–Mar' },
+    { quarter: 2, label: 'Apr–Jun' },
+    { quarter: 3, label: 'Jul–Sep' },
+    { quarter: 4, label: 'Oct–Dec' },
+];
 
 /**
  * Unified Slim Operations Header:
@@ -16,13 +23,10 @@ const MapToolbar = ({ map, filters, totalPigs, onOpenUpload }) => {
         baselineYear,
         setBaselineYear,
         years,
-        months,
-        seasonMode,
-        startMonth,
-        setStartMonth,
-        endMonth,
-        setEndMonth,
-        handleSeasonModeChange,
+        selectedQuarter,
+        setSelectedQuarter,
+        availableQuarters,
+        periods,
         clearFilters,
         hasActiveFilters
     } = filters;
@@ -75,81 +79,27 @@ const MapToolbar = ({ map, filters, totalPigs, onOpenUpload }) => {
                     </div>
                 </div>
 
-                {/* 2. Time Horizon Segmented Control */}
+                {/* 2. Calendar quarter segmented control */}
                 <div className="flex items-center bg-stone-100 p-1 rounded-lg border border-stone-200 self-start xl:self-center flex-wrap gap-0.5">
-                    <button
-                        type="button"
-                        onClick={() => handleSeasonModeChange('all')}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                            seasonMode === 'all'
-                                ? 'bg-white text-stone-800 shadow-xs border border-stone-200/80'
-                                : 'text-stone-600 hover:text-stone-800'
-                        }`}
-                    >
-                        Full Year
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => handleSeasonModeChange('wet')}
-                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                            seasonMode === 'wet'
-                                ? 'bg-sky-600 text-white shadow-xs'
-                                : 'text-stone-600 hover:text-stone-800'
-                        }`}
-                    >
-                        <CloudRain size={12} className={seasonMode === 'wet' ? 'text-sky-100' : 'text-sky-600'} />
-                        Wet Season
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => handleSeasonModeChange('dry')}
-                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                            seasonMode === 'dry'
-                                ? 'bg-amber-600 text-white shadow-xs'
-                                : 'text-stone-600 hover:text-stone-800'
-                        }`}
-                    >
-                        <Sun size={12} className={seasonMode === 'dry' ? 'text-amber-100' : 'text-amber-600'} />
-                        Dry Season
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => handleSeasonModeChange('custom')}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                            seasonMode === 'custom'
-                                ? 'bg-green-700 text-white shadow-xs'
-                                : 'text-stone-600 hover:text-stone-800'
-                        }`}
-                    >
-                        Custom
-                    </button>
-
-                    {seasonMode === 'custom' && (
-                        <div className="flex items-center gap-1 px-1">
-                            <select
-                                className="bg-white border border-stone-200 px-1.5 py-1 text-xs font-bold text-stone-800 rounded-md focus:outline-none cursor-pointer shadow-2xs"
-                                value={startMonth}
-                                onChange={(e) => setStartMonth(e.target.value)}
+                    {CENSUS_PERIODS.map(({ quarter, label }) => {
+                        const available = availableQuarters.includes(quarter);
+                        const period = periods.find(item => String(item.year) === selectedYear && item.quarter === quarter);
+                        return (
+                            <button key={quarter} type="button" disabled={!available}
+                                onClick={() => setSelectedQuarter(quarter)}
+                                title={available ? `Show ${label} ${selectedYear}` : `${label} ${selectedYear}: No data`}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                                    selectedQuarter === quarter
+                                        ? 'bg-green-700 text-white shadow-xs'
+                                        : available
+                                            ? 'text-stone-600 hover:text-stone-800 cursor-pointer'
+                                            : 'text-stone-400 cursor-not-allowed'
+                                }`}
                             >
-                                {months.map(m => (
-                                    <option key={m.id} value={m.id}>{m.short}</option>
-                                ))}
-                            </select>
-                            <span className="text-stone-400 text-xs font-bold">➔</span>
-                            <select
-                                className="bg-white border border-stone-200 px-1.5 py-1 text-xs font-bold text-stone-800 rounded-md focus:outline-none cursor-pointer shadow-2xs"
-                                value={endMonth}
-                                onChange={(e) => setEndMonth(e.target.value)}
-                            >
-                                {months.map(m => (
-                                    <option key={m.id} value={m.id}>{m.short}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+                                {label}{!available ? <span className="sr-only"> (No data)</span> : period?.period_status === 'in_progress' ? <span className="sr-only"> (In progress)</span> : null}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* 3. Year Selection & Comparison Capsule + Municipal Count + Upload Button */}

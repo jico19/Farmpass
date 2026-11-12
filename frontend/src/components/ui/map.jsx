@@ -1,6 +1,7 @@
 import Skeleton from 'react-loading-skeleton';
-import MapLibreGL from "maplibre-gl";
+import * as MapLibreGL from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import mapLibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import {
   createContext,
   forwardRef,
@@ -13,6 +14,8 @@ import {
   useRef,
   useState,
 } from "react";
+
+MapLibreGL.setWorkerUrl(mapLibreWorkerUrl);
 import { createPortal } from "react-dom";
 import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 

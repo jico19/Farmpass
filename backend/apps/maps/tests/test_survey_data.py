@@ -1,4 +1,5 @@
 import pytest
+from datetime import date
 from apps.maps.models import Barangay, HogSurvey
 from apps.maps.services import HogSurveyService
 from apps.permits.models import PermitApplication, TransportOrigin
@@ -53,12 +54,12 @@ class TestSurveyData:
 
 @pytest.mark.django_db
 class TestTransportVolume:
-    def _make_app(self, farmer, status):
+    def _make_app(self, farmer, status, transport_date=None):
         return PermitApplication.objects.create(
             farmer=farmer,
             status=status,
             destination="Lucena",
-            transport_date=timezone.now().date(),
+            transport_date=transport_date or timezone.now().date(),
             purpose="Slaughter",
         )
 
@@ -109,3 +110,23 @@ class TestTransportVolume:
         }
         assert float(by_name["Light B"]["latitude"]) == float(light.latitude)
         assert float(by_name["Light B"]["longitude"]) == float(light.longitude)
+
+    def test_transport_volume_filters_by_census_quarter(self, api_client, agri_user):
+        farmer = User.objects.create_user(
+            username="period_farmer", password="password", role="Farmer", phone_no="09555555556"
+        )
+        barangay = Barangay.objects.create(name="Period B")
+        q3 = self._make_app(farmer, PermitApplication.Status.RELEASED, date(2026, 9, 30))
+        q4 = self._make_app(farmer, PermitApplication.Status.RELEASED, date(2026, 10, 1))
+        TransportOrigin.objects.create(application=q3, barangay=barangay, fattener=30)
+        TransportOrigin.objects.create(application=q4, barangay=barangay, fattener=4)
+
+        assert HogSurveyService.calculate_transport_volume(2026, 3)[0]["total_transported"] == 30
+        assert HogSurveyService.calculate_transport_volume(2026, 4)[0]["total_transported"] == 4
+
+        api_client.force_authenticate(user=agri_user)
+        response = api_client.get("/barangay/transport_volume/?year=2026&quarter=4")
+        assert response.status_code == 200
+        assert response.data[0]["total_transported"] == 4
+        assert api_client.get("/barangay/transport_volume/?year=2026").status_code == 400
+        assert api_client.get("/barangay/transport_volume/?year=2026&quarter=5").status_code == 400

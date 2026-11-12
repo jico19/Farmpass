@@ -1,130 +1,84 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 
-/**
- * Owns all map filter/selection state for the AgriMapPage operations toolbar:
- * season mode, custom month range, year pickers, compare mode, density filters,
- * active visualization layer ('density' | 'transport' | 'growth'), and barangay selection.
- */
-const useMapFilters = (availableYears) => {
-    const [seasonMode, setSeasonMode] = useState('all'); // 'all' | 'wet' | 'dry' | 'custom'
-    const [startMonth, setStartMonth] = useState('');
-    const [endMonth, setEndMonth] = useState('');
-    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+const DENSITY_LEVELS = ['Low', 'Medium', 'High', 'Very High', 'None', 'No data'];
+const today = new Date();
+const CURRENT_CALENDAR_PERIOD = {
+    year: today.getFullYear(),
+    quarter: Math.floor(today.getMonth() / 3) + 1,
+};
+
+/** Owns the selected quarterly census period and map display state. */
+const useMapFilters = (metadata) => {
+    const periods = useMemo(() => metadata?.periods || [], [metadata?.periods]);
+    const currentObservedPeriod = periods.find(period =>
+        period.year === CURRENT_CALENDAR_PERIOD.year
+        && period.quarter === CURRENT_CALENDAR_PERIOD.quarter
+    );
+    const defaultPeriod = currentObservedPeriod || metadata?.default_period || periods[0] || {};
+    const [selectedYearState, setSelectedYearState] = useState(null);
+    const [selectedQuarterState, setSelectedQuarterState] = useState(null);
     const [isCompareMode, setIsCompareMode] = useState(false);
     const [baselineYear, setBaselineYear] = useState('');
-    const [activeFilters, setActiveFilters] = useState(['Low', 'Medium', 'High', 'Very High', 'None', 'No data']);
+    const [activeFilters, setActiveFilters] = useState(DENSITY_LEVELS);
     const [selectedBarangay, setSelectedBarangay] = useState(null);
-    const [activeMapLayer, setActiveMapLayer] = useState('density'); // 'density' | 'transport' | 'growth'
+    const [activeMapLayer, setActiveMapLayer] = useState('density');
 
-    const toggleFilter = (level) => {
-        setActiveFilters(prev =>
-            prev.includes(level)
-                ? prev.filter(f => f !== level)
-                : [...prev, level]
-        );
-    };
+    const years = useMemo(
+        () => [...new Set(periods.map(period => String(period.year)))],
+        [periods],
+    );
+    const selectedYear = selectedYearState && years.includes(selectedYearState)
+        ? selectedYearState
+        : String(defaultPeriod.year || years[0] || '');
+    const availableQuarters = useMemo(
+        () => periods.filter(period => String(period.year) === selectedYear).map(period => period.quarter),
+        [periods, selectedYear],
+    );
+    const selectedQuarter = availableQuarters.includes(Number(selectedQuarterState))
+        ? Number(selectedQuarterState)
+        : Number(defaultPeriod.year) === Number(selectedYear) && availableQuarters.includes(Number(defaultPeriod.quarter))
+            ? Number(defaultPeriod.quarter)
+            : availableQuarters[0] || null;
 
-    const years = useMemo(() => {
-        if (availableYears && availableYears.length > 0) {
-            return availableYears.map(y => y.toString());
-        }
-        return [new Date().getFullYear().toString()];
-    }, [availableYears]);
-
-    // Fall back to the most recent available survey year if the current
-    // selection is no longer part of the known survey years.
-    const effectiveSelectedYear = useMemo(() => {
-        if (years.length > 0 && !years.includes(selectedYear)) {
-            return years[0];
-        }
-        return selectedYear;
-    }, [years, selectedYear]);
-
-    // Baseline defaults to the survey year immediately preceding the target
-    // year (prev === 'earlier' in a descending year list).
     const effectiveBaselineYear = useMemo(() => {
-        const currentIdx = years.indexOf(effectiveSelectedYear);
-        const fallbackBaseline = years[currentIdx + 1] || years[1] || years[0];
-        if (!baselineYear || !years.includes(baselineYear) || baselineYear === effectiveSelectedYear) {
-            return fallbackBaseline;
-        }
-        return baselineYear;
-    }, [years, effectiveSelectedYear, baselineYear]);
+        const currentIndex = years.indexOf(selectedYear);
+        const fallback = years[currentIndex + 1] || years.find(year => year !== selectedYear) || selectedYear;
+        return baselineYear && years.includes(baselineYear) && baselineYear !== selectedYear
+            ? baselineYear
+            : fallback;
+    }, [baselineYear, selectedYear, years]);
 
-    const handleSeasonModeChange = (mode) => {
-        setSeasonMode(mode);
-        if (mode !== 'custom') {
-            setStartMonth('');
-            setEndMonth('');
-        } else {
-            if (!startMonth) setStartMonth('1');
-            if (!endMonth) setEndMonth('3');
-        }
+    const toggleFilter = (level) => setActiveFilters(previous =>
+        previous.includes(level) ? previous.filter(item => item !== level) : [...previous, level]
+    );
+    const setSelectedYear = (year) => {
+        setSelectedYearState(String(year));
+        setSelectedBarangay(null);
     };
-
-    const handleCompareModeToggle = (enable) => {
-        setIsCompareMode(enable);
-        if (enable) {
-            setActiveMapLayer('growth');
-        } else {
-            if (activeMapLayer === 'growth') {
-                setActiveMapLayer('density');
-            }
-        }
+    const setSelectedQuarter = (quarter) => {
+        setSelectedQuarterState(Number(quarter));
+        setSelectedBarangay(null);
     };
-
+    const setCompareMode = (enabled) => {
+        setIsCompareMode(enabled);
+        setActiveMapLayer(enabled ? 'growth' : 'density');
+    };
     const clearFilters = () => {
-        setSeasonMode('all');
-        setStartMonth('');
-        setEndMonth('');
-        const defaultYear = years[0] || new Date().getFullYear().toString();
-        setSelectedYear(defaultYear);
+        setSelectedYearState(null);
+        setSelectedQuarterState(null);
         setSelectedBarangay(null);
         setIsCompareMode(false);
         setActiveMapLayer('density');
-        setActiveFilters(['Low', 'Medium', 'High', 'Very High', 'None', 'No data']);
+        setActiveFilters(DENSITY_LEVELS);
     };
 
-    const months = [
-        { id: '1', name: 'January', short: 'Jan' },
-        { id: '2', name: 'February', short: 'Feb' },
-        { id: '3', name: 'March', short: 'Mar' },
-        { id: '4', name: 'April', short: 'Apr' },
-        { id: '5', name: 'May', short: 'May' },
-        { id: '6', name: 'June', short: 'Jun' },
-        { id: '7', name: 'July', short: 'Jul' },
-        { id: '8', name: 'August', short: 'Aug' },
-        { id: '9', name: 'September', short: 'Sep' },
-        { id: '10', name: 'October', short: 'Oct' },
-        { id: '11', name: 'November', short: 'Nov' },
-        { id: '12', name: 'December', short: 'Dec' },
-    ];
-
-    const hasActiveFilters = seasonMode !== 'all' || selectedBarangay !== null || isCompareMode || activeFilters.length < 6 || activeMapLayer !== 'density';
-
     return {
-        seasonMode,
-        startMonth,
-        endMonth,
-        selectedYear: effectiveSelectedYear,
-        isCompareMode,
-        baselineYear: effectiveBaselineYear,
-        activeFilters,
-        selectedBarangay,
-        activeMapLayer,
-        setActiveMapLayer,
-        setSelectedYear,
-        setBaselineYear,
-        setIsCompareMode: handleCompareModeToggle,
-        setSelectedBarangay,
-        setStartMonth,
-        setEndMonth,
-        toggleFilter,
-        handleSeasonModeChange,
-        clearFilters,
-        years,
-        months,
-        hasActiveFilters
+        selectedYear, selectedQuarter, availableQuarters, periods,
+        isCompareMode, baselineYear: effectiveBaselineYear, years,
+        activeFilters, selectedBarangay, activeMapLayer,
+        setActiveMapLayer, setSelectedYear, setSelectedQuarter, setBaselineYear,
+        setIsCompareMode: setCompareMode, setSelectedBarangay, toggleFilter, clearFilters,
+        hasActiveFilters: selectedBarangay !== null || isCompareMode || activeFilters.length < DENSITY_LEVELS.length || activeMapLayer !== 'density',
     };
 };
 

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import MainMap from "./MainMap";
-import { useGetHogSurvey, useGetMaps, useGetHogSurveyYears, useGetTransportVolume } from '../../../../hooks/useMaps';
+import { useGetHogSurvey, useGetMaps, useGetHogSurveyPeriods, useGetTransportVolume } from '../../../../hooks/useMaps';
 import { Loader2 } from "lucide-react";
 import HogSurveyUploadModal from '../../../../components/HogSurveyUploadModal';
 import useMapFilters from './useMapFilters';
@@ -18,19 +18,13 @@ const AgriMapPage = () => {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     const { data: map } = useGetMaps();
-    const { data: availableYears } = useGetHogSurveyYears();
+    const { data: periodMetadata } = useGetHogSurveyPeriods();
+    const filters = useMapFilters(periodMetadata);
     const {
         data: transportVolume = [],
         isFetching: transportLoading,
         isError: transportError,
-    } = useGetTransportVolume();
-
-    const filters = useMapFilters(availableYears);
-
-    // Query parameters
-    const querySeason = filters.seasonMode === 'custom' ? '' : filters.seasonMode;
-    const queryStartMonth = filters.seasonMode === 'custom' ? filters.startMonth : '';
-    const queryEndMonth = filters.seasonMode === 'custom' ? filters.endMonth : '';
+    } = useGetTransportVolume(filters.selectedYear, filters.selectedQuarter);
 
     // Primary survey query (Target Year)
     const {
@@ -39,7 +33,7 @@ const AgriMapPage = () => {
         isPending: surveyLoading,
         isPlaceholderData: surveyPlaceholder,
         isError: surveyError,
-    } = useGetHogSurvey(queryStartMonth, queryEndMonth, querySeason, filters.selectedYear, filters.isCompareMode ? filters.baselineYear : null);
+    } = useGetHogSurvey(filters.selectedYear, filters.selectedQuarter);
 
     // Baseline survey query (Active when Compare Mode is enabled)
     const {
@@ -48,7 +42,7 @@ const AgriMapPage = () => {
         isPending: comparisonLoading,
         isPlaceholderData: comparisonPlaceholder,
         isError: comparisonError,
-    } = useGetHogSurvey(queryStartMonth, queryEndMonth, querySeason, filters.isCompareMode ? filters.baselineYear : null, filters.isCompareMode ? filters.selectedYear : null);
+    } = useGetHogSurvey(filters.isCompareMode ? filters.baselineYear : null, filters.isCompareMode ? filters.selectedQuarter : null);
 
     const { 
         comparisonStats, 

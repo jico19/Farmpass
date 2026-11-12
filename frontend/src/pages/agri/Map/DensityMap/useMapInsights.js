@@ -1,3 +1,5 @@
+const PERIOD_LABELS = { 1: 'Jan–Mar', 2: 'Apr–Jun', 3: 'Jul–Sep', 4: 'Oct–Dec' };
+
 const useMapInsights = ({ survey = [], compareSurvey = [], surveyFetching, compareSurveyFetching, filters }) => {
     const { isCompareMode, selectedBarangay, selectedYear, baselineYear } = filters;
     const observed = survey.filter(row => row.has_observations);
@@ -18,7 +20,7 @@ const useMapInsights = ({ survey = [], compareSurvey = [], surveyFetching, compa
             increased: pairs.filter(p => p.target.total_pigs > p.baseline.total_pigs).length,
             decreased: pairs.filter(p => p.target.total_pigs < p.baseline.total_pigs).length,
             stable: pairs.filter(p => p.target.total_pigs === p.baseline.total_pigs).length,
-            storySummary: `Q${survey[0].quarter} comparison, ${baselineYear} to ${selectedYear}, across ${pairs.length} barangays observed in both years.`,
+            storySummary: `${PERIOD_LABELS[survey[0].quarter]} comparison, ${baselineYear} to ${selectedYear}, across ${pairs.length} barangays observed in both years.`,
         };
     })();
     const selected = survey.find(row => row.barangay === selectedBarangay);
@@ -27,16 +29,16 @@ const useMapInsights = ({ survey = [], compareSurvey = [], surveyFetching, compa
     const insight = selectedBarangay
         ? selected?.has_observations
             ? `${selectedBarangay} recorded ${selected.total_pigs.toLocaleString()} pigs from ${selected.raiser_count} raisers in the census dated ${date}.`
-            : `${selectedBarangay} has no observations in the selected census quarter.`
+            : `${selectedBarangay} has no observations in the selected census period.`
         : comparisonStats?.storySummary || (isCompareMode
-            ? 'No matching quarter with observations is available for these years and filters.'
-            : `${totalPigs.toLocaleString()} pigs recorded for ${date || 'the selected quarter'}. Coverage: ${coverage?.observed_barangays || 0} of ${coverage?.total_barangays || 0} barangays.`);
+            ? 'No matching census period with observations is available for these years.'
+            : `${totalPigs.toLocaleString()} pigs recorded for ${date || 'the selected census period'}. Coverage: ${coverage?.observed_barangays || 0} of ${coverage?.total_barangays || 0} barangays.`);
     const operationalTakeaway = {
         category: 'QUARTERLY CENSUS', title: selectedBarangay || 'Municipal census', insight,
         action: 'Review reporting coverage before comparing population totals.',
         why: {
-            summary: 'Each raiser contributes only their latest observation within this quarter. Missing observations are excluded from counts.',
-            formula: "Quarterly population = sum of six categories in each raiser's latest quarterly observation",
+            summary: 'Each raiser contributes only their latest observation within this three-month period. Missing observations are excluded from counts.',
+            formula: "Census population = sum of six categories in each raiser's latest observation for the period",
             evidence: [{ label: 'Census date', value: date || 'No data' }],
         },
         affectedBarangays: [],
