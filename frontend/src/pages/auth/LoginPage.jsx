@@ -43,6 +43,8 @@ const LoginPage = () => {
     const [usernameVal, setUsernameVal] = useState("");
     const login = useAuthStore((s) => s.login);
     const navigate = useNavigate();
+    const browserAccountActive = useAuthStore((s) => s.browserAccountActive);
+    const logout = useAuthStore((s) => s.logout);
     const [apiError, setApiError] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [throttleWait, setThrottleWait] = useState(0);
@@ -228,6 +230,12 @@ const LoginPage = () => {
                     )}
 
                     {/* Login Form */}
+                    {browserAccountActive && (
+                        <div role="status" className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-sm text-stone-600">
+                            <p>An account is already signed in in this browser. Use the same account, or sign out before switching.</p>
+                            <button type="button" onClick={() => logout().catch((error) => setApiError(error.userMessage || error.message))} className="mt-2 font-bold text-green-700 hover:text-green-600 cursor-pointer">Sign out current account</button>
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         {/* Username Field */}
                         <div className="space-y-1">

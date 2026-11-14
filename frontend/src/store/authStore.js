@@ -1,3 +1,4 @@
+import { ACCOUNT_KEY, accountSnapshot, activeAccount, accountTransition, claimAccount, endAccount, matchesAccount } from '../lib/browserAccount';
 import { connectionMessage, isOffline } from '../lib/connection';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
@@ -10,10 +11,12 @@ const useAuthStore = create(
             access: null,
             refresh: null,
             isAuthenticated: false,
+            sessionId: null,
+            browserAccountActive: activeAccount()?.userId != null,
 
             // Login Action
             login: async (credentials) => {
-                set({ isLoading: true });
+                const snapshot = accountSnapshot();
                 try {
                     if (isOffline()) throw Object.assign(new Error('Offline'), { code: 'ERR_NETWORK' });
                     const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/login/`, credentials)
@@ -29,15 +32,20 @@ const useAuthStore = create(
                         verification_status: decoded.verification_status || 'UNVERIFIED'
                     };
 
-                    set({
-                        user: user,
-                        access: res.data.access,
-                        refresh: res.data.refresh,
-                        isAuthenticated: true,
+                    await accountTransition(() => {
+                        const sessionId = claimAccount(user.id, snapshot);
+                        set({
+                            sessionId,
+                            browserAccountActive: true,
+                            user: user,
+                            access: res.data.access,
+                            refresh: res.data.refresh,
+                            isAuthenticated: true,
+                        });
                     });
                 } catch (error) {
                     console.error("Login failed:", error);
-                    error.userMessage = connectionMessage(error);
+                    error.userMessage ||= connectionMessage(error);
                     throw error
                 }
             },
@@ -52,11 +60,12 @@ const useAuthStore = create(
             // Fetch fresh user profile
             fetchUserProfile: async () => {
                 try {
+                    const sessionId = useAuthStore.getState().sessionId;
                     const access = useAuthStore.getState().access;
                     if (!access) return null;
                     const { api } = await import('../lib/api');
                     const res = await api.get('/user/me/');
-                    if (res.data) {
+                    if (res.data && sessionId === useAuthStore.getState().sessionId && matchesAccount(useAuthStore.getState())) {
                         set((state) => ({
                             user: {
                                 ...state.user,
@@ -76,7 +85,12 @@ const useAuthStore = create(
             },
 
             // Logout Action
-            logout: () => {
+            logout: () => accountTransition(() => {
+                endAccount();
+                useAuthStore.getState().clearSession();
+            }),
+
+            clearSession: () => {
                 try {
                     const videos = document.querySelectorAll('video');
                     videos.forEach((video) => {
@@ -88,8 +102,8 @@ const useAuthStore = create(
                 } catch {
                     // ignore
                 }
-                set({ user: null, access: null, refresh: null, isAuthenticated: false });
-                sessionStorage.clear()
+                set({ user: null, access: null, refresh: null, isAuthenticated: false, sessionId: null, browserAccountActive: activeAccount()?.userId != null });
+                sessionStorage.removeItem('auth-context');
             },
         }),
         {
@@ -98,5 +112,19 @@ const useAuthStore = create(
         }
     )
 );
+
+function reconcileAccount() {
+    const state = useAuthStore.getState();
+    if (state.access && !matchesAccount(state)) state.clearSession();
+    useAuthStore.setState({ browserAccountActive: activeAccount()?.userId != null });
+}
+
+reconcileAccount();
+window.addEventListener('storage', (event) => {
+    if (event.key === ACCOUNT_KEY || event.key === null) reconcileAccount();
+});
+window.addEventListener('pageshow', reconcileAccount);
+window.addEventListener('focus', reconcileAccount);
+document.addEventListener('visibilitychange', reconcileAccount);
 
 export default useAuthStore;
