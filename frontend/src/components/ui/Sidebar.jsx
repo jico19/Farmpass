@@ -291,8 +291,8 @@ const Sidebar = ({ children }) => {
                             </Link>
 
                             <button
-                                onClick={() => {
-                                    logout()
+                                onClick={async () => {
+                                    await logout()
                                     navigate('/')
                                 }}
                                 className="flex items-center gap-2 text-stone-400 hover:text-red-600 transition-colors"
@@ -348,8 +348,8 @@ const Sidebar = ({ children }) => {
                     {/* Sidebar Footer */}
                     <div className="p-4 border-t border-stone-100">
                         <button
-                            onClick={() => {
-                                logout()
+                            onClick={async () => {
+                                await logout()
                                 navigate('/')
                             }}
                             className="flex items-center w-full gap-3 px-4 py-3 text-xs font-black tracking-widest transition-colors rounded-lg text-stone-500 hover:bg-red-50 hover:text-red-600 uppercase"

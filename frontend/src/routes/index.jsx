@@ -78,7 +78,7 @@ const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 const router = createBrowserRouter([
     // none-role route
-    { path: "/login", element: withSuspense(LoginPage) },
+    { path: "/login", element: <RootRedirect>{withSuspense(LoginPage)}</RootRedirect> },
     { path: '/register', element: withSuspense(RegisterPage) },
     { path: '/reset-password/:uid/:token', element: withSuspense(ResetPasswordPage) },
 

@@ -1,3 +1,4 @@
+import { matchesAccount } from './browserAccount';
 import { connectionMessage } from './connection';
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge"
@@ -172,7 +173,7 @@ export const getAuthenticatedMediaUrl = (url) => {
             const authStorage = sessionStorage.getItem('auth-context');
             if (authStorage) {
                 const parsed = JSON.parse(authStorage);
-                const token = parsed?.state?.access;
+                const token = matchesAccount(parsed?.state) ? parsed.state.access : null;
                 if (token && !resolved.includes('token=')) {
                     const separator = resolved.includes('?') ? '&' : '?';
                     return `${resolved}${separator}token=${encodeURIComponent(token)}`;

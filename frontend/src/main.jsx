@@ -29,10 +29,17 @@ import { createRoot } from 'react-dom/client'
 import 'react-loading-skeleton/dist/skeleton.css'
 import './index.css'
 import App from './App.jsx'
+import useAuthStore from './store/authStore'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ResponsiveToaster from './components/ui/ResponsiveToaster.jsx'
 
 const queryClient = new QueryClient()
+useAuthStore.subscribe((state, previous) => {
+  if (state.sessionId !== previous.sessionId) {
+    void queryClient.cancelQueries();
+    queryClient.clear();
+  }
+})
 
 
 createRoot(document.getElementById('root')).render(
