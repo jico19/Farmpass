@@ -13,11 +13,13 @@ import {
     HelpCircle,
     Building2,
     Clock,
-    MapPin
+    MapPin,
+    Mail
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import AgriLogo from "../../assets/sariaya-agri-logo.jpg";
+import { api } from "../../lib/api";
 
 /**
  * Login Page
@@ -46,6 +48,27 @@ const LoginPage = () => {
     const [apiError, setApiError] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [throttleWait, setThrottleWait] = useState(0);
+    const [showReset, setShowReset] = useState(false);
+    const [resetEmail, setResetEmail] = useState("");
+    const [isSendingReset, setIsSendingReset] = useState(false);
+    const [resetCooldown, setResetCooldown] = useState(0);
+    const [resetSent, setResetSent] = useState(false);
+
+    const requestPasswordReset = async (event) => {
+        event.preventDefault();
+        setIsSendingReset(true);
+        try {
+            const response = await api.post("/password-reset/", { email: resetEmail });
+            toast.success("Check Your Email", { description: response.data.detail });
+            setResetSent(true);
+            setResetCooldown(60);
+        } catch (error) {
+            const detail = error.response?.data?.detail || error.response?.data?.email?.[0] || "Could not send the reset email. Please try again.";
+            toast.error("Reset Request Failed", { description: detail });
+        } finally {
+            setIsSendingReset(false);
+        }
+    };
 
     // Countdown timer for rate limiting/throttling
     useEffect(() => {
@@ -55,6 +78,12 @@ const LoginPage = () => {
         }, 1000);
         return () => clearInterval(interval);
     }, [throttleWait]);
+
+    useEffect(() => {
+        if (resetCooldown <= 0) return;
+        const interval = setInterval(() => setResetCooldown((value) => value - 1), 1000);
+        return () => clearInterval(interval);
+    }, [resetCooldown]);
 
     const onSubmit = async (data) => {
         if (throttleWait > 0) return;
@@ -329,12 +358,17 @@ const LoginPage = () => {
                         </button>
                     </form>
 
-                    {/* Support Advisory Tip */}
+                    <button
+                        type="button"
+                        onClick={() => setShowReset(true)}
+                        className="w-full text-xs font-bold text-green-700 hover:text-green-600 cursor-pointer"
+                    >
+                        Reset Password
+                    </button>
+
                     <div className="bg-stone-50 border border-stone-200 p-3 flex items-start gap-2.5 text-xs text-stone-600 rounded-lg">
                         <HelpCircle size={15} className="text-stone-500 mt-0.5 flex-shrink-0" />
-                        <p>
-                            For password reset or account recovery, please visit the Municipal Agriculture Office in Sariaya with a valid ID.
-                        </p>
+                        <p>If you cannot access your email, visit the Municipal Agriculture Office in Sariaya with a valid ID.</p>
                     </div>
 
                     {/* Bottom Link: Register */}
@@ -353,6 +387,30 @@ const LoginPage = () => {
                 </div>
                 </div>
             </div>
+            {showReset && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4">
+                    <form onSubmit={requestPasswordReset} className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-xl">
+                        <div className="mb-5 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="font-black text-stone-900">Reset Password</h2>
+                                <p className="mt-1 text-xs text-stone-600">Enter the email registered to your FarmPass account.</p>
+                            </div>
+                            <button type="button" onClick={() => setShowReset(false)} className="text-stone-400 hover:text-stone-700 cursor-pointer" aria-label="Close reset password dialog">
+                                <X size={18} />
+                            </button>
+                        </div>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-stone-600">Email Address</label>
+                        <div className="relative mt-1">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
+                            <input type="email" required autoFocus value={resetEmail} onChange={(event) => setResetEmail(event.target.value)} className="h-10 w-full rounded-lg border border-stone-200 pl-9 pr-3 text-sm outline-none focus:border-green-700" placeholder="you@example.com" />
+                        </div>
+                        {resetSent && <p className="mt-3 text-xs text-green-700">Check your inbox and spam folder. You can request another link when the timer ends.</p>}
+                        <button type="submit" disabled={isSendingReset || resetCooldown > 0} className="mt-5 w-full rounded-lg bg-green-700 px-4 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-green-600 disabled:opacity-50 cursor-pointer">
+                            {isSendingReset ? "Sending..." : resetCooldown > 0 ? `Send again in ${resetCooldown}s` : resetSent ? "Send Again" : "Send Reset Link"}
+                        </button>
+                    </form>
+                </div>
+            )}
         </div>
     );
 };

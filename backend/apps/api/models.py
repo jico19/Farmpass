@@ -13,6 +13,9 @@ def validate_license_file_size(value):
 
 
 class User(AbstractUser):
+    email = models.EmailField(unique=True, null=True, blank=True)
+    email_verified_at = models.DateTimeField(null=True, blank=True)
+
     class VerificationStatus(models.TextChoices):
         UNVERIFIED = "UNVERIFIED", "Unverified"
         PENDING_REVIEW = "PENDING_REVIEW", "Pending Review"

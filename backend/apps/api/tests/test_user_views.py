@@ -50,6 +50,7 @@ class UserOTPTests(APITestCase):
         register_url = reverse('user-list') # ModelViewSet create is at root
         register_data = {
             'username': 'test_farmer',
+            'email': 'test_farmer@example.com',
             'password': 'password123',
             'phone_no': self.phone_no,
             'first_name': 'Juan',
@@ -368,6 +369,25 @@ class ProfilePatchPreservesPrivilegeTests(APITestCase):
         user.refresh_from_db()
         self.assertEqual(user.role, "Barangay")
         self.assertEqual(user.verification_status, User.VerificationStatus.VERIFIED)
+
+    def test_profile_patch_updates_email(self):
+        user = User.objects.create_user(
+            username="email_profile",
+            email="current.email@example.com",
+            password="password123",
+            role="Farmer",
+        )
+        self.client.force_authenticate(user=user)
+
+        response = self.client.patch(
+            reverse("user-detail", kwargs={"pk": user.pk}),
+            {"email": "Updated.Email@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user.refresh_from_db()
+        self.assertEqual(user.email, "updated.email@example.com")
 
     def test_verified_farmer_profile_patch_preserves_kyc(self):
         user = User.objects.create_user(

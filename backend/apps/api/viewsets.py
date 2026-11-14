@@ -1,6 +1,8 @@
 import logging
+import secrets
 from datetime import datetime
-from django.db import transaction
+from django.core.cache import cache
+from django.db import transaction, IntegrityError
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import status, filters, viewsets
@@ -12,7 +14,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import EmailField
 from .base import BaseModelViewSet
+from .emails import send_branded_email
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +101,84 @@ class UserViewSet(BaseModelViewSet):
     def me(self, request):
         serializer = serializers.UserListSerializer(request.user, context={"request": request})
         return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def request_email_verification(self, request):
+        user = request.user
+        if user.email:
+            return Response({"error": "This account already has an email address."}, status=status.HTTP_400_BAD_REQUEST)
+
+        email = EmailField().run_validation(request.data.get("email")).strip().lower()
+        if models.User.objects.filter(email__iexact=email).exclude(pk=user.pk).exists():
+            return Response({"error": "A user with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cooldown_key = f"email_verification_cooldown:{user.pk}"
+        if not cache.add(cooldown_key, True, timeout=60):
+            return Response({"error": "Please wait 60 seconds before requesting another code."}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
+        code = str(secrets.randbelow(900000) + 100000)
+        cache.set(
+            f"email_verification:{user.pk}",
+            {"email": email, "code": code, "attempts": 0},
+            timeout=600,
+        )
+        try:
+            recipient_name = user.get_full_name().strip() or user.username
+            send_branded_email(
+                subject="Verify your FarmPass email",
+                text_body=(
+                    f"Dear {recipient_name},\n\n"
+                    f"Your FarmPass email verification code is: {code}\n\n"
+                    "This code expires in 10 minutes. Do not share it with anyone."
+                ),
+                recipient=email,
+                template_name="api/email/email_verification.html",
+                context={
+                    "recipient_name": recipient_name,
+                    "verification_code": code,
+                    "expiry_copy": "This code expires in 10 minutes.",
+                },
+            )
+        except Exception:
+            cache.delete_many([cooldown_key, f"email_verification:{user.pk}"])
+            logger.exception("Failed to send email verification code for user %s", user.pk)
+            return Response({"error": "Could not send the verification email. Please try again."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        return Response({"detail": "A 6-digit verification code was sent to your email."})
+
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def confirm_email_verification(self, request):
+        user = request.user
+        if user.email:
+            return Response({"error": "This account already has an email address."}, status=status.HTTP_400_BAD_REQUEST)
+
+        key = f"email_verification:{user.pk}"
+        pending = cache.get(key)
+        email = str(request.data.get("email", "")).strip().lower()
+        code = str(request.data.get("code", "")).strip()
+        if not pending:
+            return Response({"error": "The verification code has expired. Request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if pending["email"] != email or not secrets.compare_digest(pending["code"], code):
+            pending["attempts"] += 1
+            if pending["attempts"] >= 5:
+                cache.delete(key)
+                message = "Too many incorrect attempts. Request a new code."
+            else:
+                cache.set(key, pending, timeout=600)
+                message = "Invalid verification code."
+            return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            with transaction.atomic():
+                user.email = email
+                user.email_verified_at = timezone.now()
+                user.save(update_fields=["email", "email_verified_at"])
+        except IntegrityError:
+            return Response({"error": "A user with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cache.delete(key)
+        return Response(serializers.UserListSerializer(user, context={"request": request}).data)
 
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def export_personal_data(self, request):

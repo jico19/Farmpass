@@ -31,7 +31,7 @@ export const useProfile = (userId) => {
         onError: (error) => {
             console.error("Update failed:", error);
             toast.error("Update Failed", {
-                description: "We couldn't save your changes. Please check the fields."
+                description: error.response?.data?.error || "We couldn't save your changes. Please check the fields."
             });
         }
     });

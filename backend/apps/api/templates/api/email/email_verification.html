@@ -1,0 +1,17 @@
+{% extends "api/email/base.html" %}
+
+{% block title %}Verify your FarmPass email{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 18px;">Dear {{ recipient_name }},</p>
+<p style="margin:0 0 22px;">Use the verification code below to confirm this email address for your FarmPass account.</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin:0 0 22px;">
+  <tr>
+    <td align="center" style="padding:22px;background-color:#edf6f0;border:1px solid #cfe3d5;border-radius:8px;color:#174d32;font-size:32px;font-weight:700;letter-spacing:8px;">{{ verification_code }}</td>
+  </tr>
+</table>
+<p style="margin:0 0 22px;text-align:center;font-size:14px;color:#59655d;">{{ expiry_copy }}</p>
+<div style="padding:14px 16px;border-left:4px solid #c48a28;background-color:#fff8e8;color:#57451e;font-size:14px;line-height:22px;">
+  <strong>Security notice:</strong> Do not share this code with anyone. FarmPass staff will never ask you for it.
+</div>
+{% endblock %}
