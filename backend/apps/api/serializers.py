@@ -35,6 +35,8 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'username',
+            "email",
+            "email_verified_at",
             'first_name',
             'last_name',
             'role',
@@ -58,10 +60,14 @@ class UserListSerializer(serializers.ModelSerializer):
         return FarmerDocumentSerializer(obj.farmer_documents.all(), many=True, context=self.context).data
 
 class UserWriteSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+
     class Meta:
         model = models.User
         fields = [
             'username',
+            "email",
+            "email_verified_at",
             'password',
             'phone_no',
             'first_name',
@@ -72,8 +78,26 @@ class UserWriteSerializer(serializers.ModelSerializer):
             'receive_sms',
         ]
         extra_kwargs = {
-            'password': {'write_only': True, 'required': False}
+            "password": {"write_only": True, "required": False},
+            "email_verified_at": {"read_only": True},
         }
+
+    def validate_email(self, value):
+        value = value.strip().lower()
+        request = self.context.get("request")
+        if (
+            self.instance
+            and not self.instance.email
+            and request
+            and request.user == self.instance
+        ):
+            raise serializers.ValidationError("Verify this email address before saving it.")
+        users = models.User.objects.filter(email__iexact=value)
+        if self.instance:
+            users = users.exclude(pk=self.instance.pk)
+        if users.exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
 
     def validate(self, attrs):
         request = self.context.get('request')
@@ -124,6 +148,8 @@ class UserWriteSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        if "email" in validated_data and validated_data["email"] != instance.email:
+            instance.email_verified_at = None
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         if password:

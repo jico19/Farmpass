@@ -15,7 +15,8 @@ import {
     Building2,
     FileCheck2,
     MapPin,
-    ShieldCheck
+    ShieldCheck,
+    Mail
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../lib/api";
@@ -49,6 +50,7 @@ const RegisterPage = () => {
             first_name: "",
             last_name: "",
             username: "",
+            email: "",
             phone: "",
             password: "",
             confirm_password: "",
@@ -247,6 +249,7 @@ const RegisterPage = () => {
         try {
             await api.post("/user/", {
                 username: data.username,
+                email: data.email,
                 password: data.password,
                 phone_no: data.phone,
                 first_name: data.first_name,
@@ -604,6 +607,24 @@ const RegisterPage = () => {
                                         <p className="text-[10px] font-bold text-red-600 uppercase tracking-wide mt-1">{errors.last_name.message}</p>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-stone-600">Email Address</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
+                                    <input
+                                        type="email"
+                                        {...register("email", {
+                                            required: "Email address is required",
+                                            pattern: { value: /^\S+@\S+\.\S+$/, message: "Please enter a valid email address" },
+                                            onChange: clearFormErrors,
+                                        })}
+                                        className={`w-full h-9 px-3 pl-9 bg-white border outline-none text-sm text-stone-800 placeholder:text-stone-400 rounded-lg shadow-2xs ${errors.email ? "border-red-600 bg-red-50" : "border-stone-200 focus:border-green-700"}`}
+                                        placeholder="you@example.com"
+                                    />
+                                </div>
+                                {errors.email && <p className="text-[10px] font-bold text-red-600 uppercase tracking-wide mt-1">{errors.email.message}</p>}
                             </div>
 
                             {/* Mobile Number Field */}

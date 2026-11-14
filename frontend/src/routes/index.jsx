@@ -30,6 +30,7 @@ const LandingFAQs = lazy(() => import("../pages/landing-page/FAQs/faqs"));
 // auths
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
+const ResetPasswordPage = lazy(() => import("../pages/auth/ResetPasswordPage"));
 const SettingsPage = lazy(() => import("../pages/shared/SettingsPage"));
 
 // farmer
@@ -79,6 +80,7 @@ const router = createBrowserRouter([
     // none-role route
     { path: "/login", element: <RootRedirect>{withSuspense(LoginPage)}</RootRedirect> },
     { path: '/register', element: withSuspense(RegisterPage) },
+    { path: '/reset-password/:uid/:token', element: withSuspense(ResetPasswordPage) },
 
     // Landing & Root Redirect
     {

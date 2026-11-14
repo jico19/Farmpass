@@ -9,6 +9,7 @@ const FarmerFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays }) =
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             username: user?.username || '',
+            email: user?.email || '',
             first_name: user?.first_name || '',
             last_name: user?.last_name || '',
             phone_no: user?.phone_no || '',
@@ -49,6 +50,18 @@ const FarmerFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays }) =
                                 placeholder="john_doe"
                             />
                             {errors.username && <p className="text-xs font-medium text-rose-600 mt-1">{errors.username.message}</p>}
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-stone-700">Email Address</label>
+                            <input
+                                type="email"
+                                {...register('email', { required: "Email address is required." })}
+                                disabled={isSubmitting}
+                                className="h-10 w-full rounded-lg border border-stone-200 bg-stone-50/50 px-3 text-xs font-medium text-stone-800 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-colors"
+                                placeholder="farmer@example.com"
+                            />
+                            {errors.email && <p className="text-xs font-medium text-rose-600 mt-1">{errors.email.message}</p>}
                         </div>
 
                         {/* Password (only if registering) */}

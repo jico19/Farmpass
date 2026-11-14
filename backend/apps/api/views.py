@@ -1,4 +1,11 @@
 from django.http import JsonResponse
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework.throttling import SimpleRateThrottle
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -6,7 +13,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
+from .emails import send_branded_email
 
 class LoginRateThrottle(SimpleRateThrottle):
     rate = '5/min'
@@ -38,6 +49,74 @@ class LoginIPRateThrottle(SimpleRateThrottle):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     throttle_classes = [LoginRateThrottle, LoginIPRateThrottle]
+
+
+class PasswordResetRequestThrottle(SimpleRateThrottle):
+    rate = "1/minute"
+    scope = "password_reset"
+
+    def get_cache_key(self, request, view):
+        return self.cache_format % {
+            "scope": self.scope,
+            "ident": self.get_ident(request),
+        }
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [PasswordResetRequestThrottle]
+
+    def post(self, request):
+        email = serializers.EmailField().run_validation(request.data.get("email"))
+        user = get_user_model().objects.filter(
+            email__iexact=email.strip(), is_active=True
+        ).first()
+        if user:
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_url = f"{settings.FRONTEND_URL.rstrip('/')}/reset-password/{uid}/{token}"
+            recipient_name = user.get_full_name().strip() or user.username
+            send_branded_email(
+                subject="Reset your FarmPass password",
+                text_body=(
+                    f"Dear {recipient_name},\n\n"
+                    "We received a request to reset your FarmPass password. "
+                    "Use the link below to choose a new password:\n\n"
+                    f"{reset_url}\n\n"
+                    "If you did not request this, ignore this email. Your password will remain unchanged."
+                ),
+                recipient=user.email,
+                template_name="api/email/password_reset.html",
+                context={"recipient_name": recipient_name, "reset_url": reset_url},
+            )
+        return Response({
+            "detail": "If an active account uses that email, a password reset link has been sent."
+        })
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            user_id = force_str(urlsafe_base64_decode(request.data.get("uid", "")))
+            user = get_user_model().objects.get(pk=user_id, is_active=True)
+        except (TypeError, ValueError, OverflowError, get_user_model().DoesNotExist):
+            return Response({"detail": "This password reset link is invalid or expired."}, status=400)
+
+        token = request.data.get("token", "")
+        if not default_token_generator.check_token(user, token):
+            return Response({"detail": "This password reset link is invalid or expired."}, status=400)
+
+        password = request.data.get("password", "")
+        try:
+            validate_password(password, user=user)
+        except DjangoValidationError as error:
+            return Response({"password": list(error.messages)}, status=400)
+
+        user.set_password(password)
+        user.save(update_fields=["password"])
+        return Response({"detail": "Your password has been reset successfully."})
 
 
 class LogoutView(APIView):
