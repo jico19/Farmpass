@@ -90,12 +90,12 @@ const DocumentList = ({ documents, fixData, documentView, viewedDocIds = [] }) =
                 return (
                     <div
                         key={doc.id}
-                        className="group flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-5 bg-white border border-stone-200 rounded-xl shadow-xs transition-colors duration-100 ease-out hover:bg-stone-50/70 gap-3"
+                        className="ui-card group flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-5 bg-white border border-stone-200 rounded-xl shadow-xs gap-3"
                     >
                         <div className="flex items-start gap-3 min-w-0">
                             {/* Icon Container */}
                             <div className={`
-                                w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg border shrink-0
+                                ui-card-icon w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg border shrink-0
                                 ${stateStyles.iconBg}
                             `}>
                                 {stateStyles.icon}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { withModalMotion } from '../../lib/modalMotion';
 import { AlertCircle, HelpCircle, X, Trash2, CheckCircle2, RefreshCw } from 'lucide-react';
 
 /**
@@ -95,7 +96,7 @@ const ConfirmationModal = ({
             className="fixed inset-0 z-[2100] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs transition-opacity duration-200"
             onClick={(e) => {
                 // Close on clicking backdrop
-                if (e.target === e.currentTarget && !isSubmitting) onClose();
+                if (e.target === e.currentTarget && !activeIsSubmitting) onClose();
             }}
         >
             <div className="bg-white w-full max-w-md border border-stone-200 shadow-xl rounded-xl overflow-hidden modal-enter">
@@ -107,8 +108,8 @@ const ConfirmationModal = ({
                     </div>
                     <button 
                         onClick={onClose} 
-                        disabled={isSubmitting} 
-                        className="text-stone-400 hover:text-stone-600 transition-colors disabled:opacity-50 btn-tactile p-1 rounded-md"
+                        disabled={activeIsSubmitting}
+                        className="ui-ghost text-stone-400 hover-only:hover:text-stone-600 transition-[color,opacity] disabled:opacity-50 p-1 rounded-md"
                     >
                         <X size={20} />
                     </button>
@@ -178,4 +179,4 @@ const ConfirmationModal = ({
     );
 };
 
-export default ConfirmationModal;
+export default withModalMotion(ConfirmationModal, { duration: 100, variant: 'alert' });

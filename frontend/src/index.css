@@ -277,29 +277,143 @@
 .nav-link:hover        ~ svg .navbar-links-rect       { stroke-dashoffset: 0; stroke-dasharray: 0 0 10 40 10 40; transition: 0.5s !important; }
 
 /* SCROLL REVEAL */
-.reveal-block {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+@theme {
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-in-quart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
 }
-.reveal-block.is-visible          { opacity: 1 !important; transform: translateY(0) !important; }
-.features-card.is-visible         { opacity: 1 !important; transform: translateY(0) !important; }
-.features-card.is-visible:hover   { transform: translateY(-4px) !important; }
-.hiw-step.is-visible              { opacity: 1 !important; transform: translateY(0) !important; }
-.benefits-card.is-visible         { opacity: 1 !important; transform: translateY(0) !important; }
-.benefits-card.is-visible:hover   { transform: translateY(-6px) !important; }
-.rdoc-card.is-visible             { opacity: 1 !important; transform: translateY(0) !important; }
-.rdoc-card.is-visible:hover       { transform: translateY(-2px) !important; }
-.contact-card-inner.is-visible    { opacity: 1 !important; transform: translateY(0) !important; }
+@custom-variant hover-only (@media (hover: hover));
+/* Public landing pages deliberately opt into motion, independent of OS settings.
+   Other portals retain the normal system reduced-motion behavior. */
+@custom-variant motion-safe {
+  @media (prefers-reduced-motion: no-preference) { @slot; }
+  &:where(.landing-motion, .landing-motion *) { @slot; }
+  &:where(html[data-ui-motion="full"] *) { @slot; }
+}
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    &:not(.landing-motion, .landing-motion *, html[data-ui-motion="full"] *) { @slot; }
+  }
+}
 
-/* STATS — JS-triggered animation */
-.stats-item {
-  opacity: 0;
-  transform: translateY(16px);
-  animation: statsFadeUp 0.5s ease forwards;
-  animation-play-state: paused;
+.landing-motion :is(.reveal-block, .features-card, .hiw-step, .benefits-card, .rdoc-card, .contact-card-inner) {
+  opacity: 1;
+  transform: none;
+  transition: opacity 200ms var(--ease-out-fluid), transform 200ms var(--ease-out-fluid);
 }
-.stats-is-visible .stats-item { animation-play-state: running; }
+.landing-motion .reveal-pending {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.landing-motion :is(.is-visible, .reveal-instant, .reveal-instant *) {
+  opacity: 1;
+  transform: none;
+}
+.landing-motion .reveal-instant,
+.landing-motion .reveal-instant * { transition: none !important; }
+
+/* Separate hover translation from the transform used by scroll reveals. */
+.landing-motion .landing-card {
+  transition: opacity 200ms var(--ease-out-fluid), transform 200ms var(--ease-out-fluid),
+    translate 150ms var(--ease-smooth), border-color 150ms var(--ease-smooth),
+    box-shadow 150ms var(--ease-smooth), background-color 150ms var(--ease-smooth);
+}
+.landing-motion .landing-card-icon,
+.landing-motion .landing-stat-value,
+.landing-motion .landing-preview img {
+  transition: transform 150ms var(--ease-smooth);
+}
+.landing-motion .landing-guide-step {
+  transition: opacity 200ms var(--ease-out-fluid), transform 200ms var(--ease-out-fluid),
+    background-color 150ms var(--ease-smooth);
+}
+.landing-motion .landing-contact-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: color 150ms var(--ease-smooth), text-decoration-color 150ms var(--ease-smooth);
+}
+.landing-motion .landing-contact-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 2px;
+  text-decoration-color: currentColor;
+}
+.landing-motion .landing-card:focus-within {
+  border-color: #15803d;
+}
+@media (hover: hover) and (pointer: fine) {
+  .landing-motion .landing-card:not(.reveal-pending):hover {
+    translate: 0 -3px;
+    border-color: #15803d;
+    box-shadow: 0 6px 16px -10px rgb(10 42 26 / 25%);
+    transition-delay: 0ms;
+  }
+  .landing-motion .landing-card-dark:not(.reveal-pending):hover {
+    border-color: rgb(255 255 255 / 35%);
+    background-color: rgb(255 255 255 / 10%);
+    box-shadow: 0 6px 16px -10px rgb(0 0 0 / 35%);
+  }
+  .landing-motion .landing-card:hover .landing-card-icon {
+    transform: translateY(-2px) scale(1.05);
+  }
+  .landing-motion .landing-guide-step:hover { background-color: rgb(21 128 61 / 4%); }
+  .landing-motion .landing-guide-step:hover .landing-card-icon { transform: scale(1.05); }
+  .landing-motion .landing-stat:hover .landing-stat-value {
+    transform: translateY(-3px);
+  }
+  .landing-motion .landing-preview:hover img { transform: scale(1.015); }
+  .landing-motion .landing-contact-link:hover {
+    text-decoration-color: currentColor;
+  }
+}
+html[data-landing-input="keyboard"] .landing-motion :is(.landing-card-icon, .landing-stat-value, .landing-preview img) {
+  transform: none;
+}
+
+@keyframes landingEntrance {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.landing-entrance { animation: landingEntrance 200ms var(--ease-out-fluid) both; }
+.landing-visual { animation: landingEntrance 250ms var(--ease-out-fluid) both; }
+.landing-menu {
+  transform-origin: top left;
+  transition: opacity 100ms var(--ease-in-quart), transform 100ms var(--ease-in-quart), visibility 0s 100ms;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  visibility: hidden;
+}
+.landing-menu[data-open="true"] {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition: opacity 150ms var(--ease-out-fluid), transform 150ms var(--ease-out-fluid), visibility 0s;
+}
+.landing-faq-panel { overflow: hidden; }
+@keyframes landingAccordionOpen {
+  from { height: 0; }
+  to { height: var(--answer-height); }
+}
+@keyframes landingAccordionClose {
+  from { height: var(--answer-height); }
+  to { height: 0; }
+}
+.landing-faq-panel[data-open="true"] { animation: landingAccordionOpen 200ms var(--ease-out-fluid); }
+.landing-faq-panel[data-open="false"]:not([hidden]) { animation: landingAccordionClose 200ms var(--ease-smooth); height: 0; }
+.landing-motion [data-instant="true"],
+html[data-landing-input="keyboard"] .landing-motion *,
+html[data-landing-input="keyboard"] .landing-entrance {
+  animation: none !important;
+  transition: none !important;
+}
+html[data-landing-input="keyboard"] .landing-motion .reveal-pending {
+  opacity: 1;
+  transform: none;
+}
+html[data-landing-input="keyboard"] .landing-motion :active {
+  scale: 1 !important;
+}
 
 /* HOW IT WORKS — connector arrow + nth-child ::after */
 .hiw-connector {
@@ -440,7 +554,7 @@
 @keyframes modalEnter {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(4px);
+    transform: scale(1.02);
   }
   to {
     opacity: 1;
@@ -472,17 +586,15 @@
 
 /* Tactile button feedback: snappy press (<160ms) with hardware-accelerated transform */
 .btn-tactile {
-  transition: transform 140ms var(--ease-out-quint), background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
-  will-change: transform;
+  transition: scale 150ms var(--ease-smooth), background-color 150ms var(--ease-smooth), border-color 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth);
 }
 .btn-tactile:active:not(:disabled) {
-  transform: scale(0.97);
+  scale: 0.97;
 }
 
 /* Interactive card micro-lift */
 .card-interactive {
-  transition: transform 180ms var(--ease-out-quint), border-color 180ms ease, box-shadow 180ms ease;
-  will-change: transform;
+  transition: transform 150ms var(--ease-smooth), border-color 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth);
 }
 @media (hover: hover) and (pointer: fine) {
   .card-interactive:hover {
@@ -495,44 +607,191 @@
 
 /* Modal decelerating entrance */
 .modal-enter {
-  animation: modalEnter 180ms var(--ease-out-quint) forwards;
+  animation: modalEnter 200ms var(--ease-out-fluid);
 }
 
 /* Fluid view/step crossfade */
 .view-enter {
-  animation: fadeInUp 180ms var(--ease-out-quint) forwards;
+  animation: fadeInUp 200ms var(--ease-out-fluid);
 }
 
 /* Stagger entrance utility for dashboards & lists */
 .stagger-1 {
-  animation: fadeInUp 200ms var(--ease-out-quint) both;
+  animation: fadeInUp 200ms var(--ease-out-fluid) backwards;
   animation-delay: 0ms;
 }
 .stagger-2 {
-  animation: fadeInUp 200ms var(--ease-out-quint) both;
-  animation-delay: 40ms;
+  animation: fadeInUp 200ms var(--ease-out-fluid) backwards;
+  animation-delay: 20ms;
 }
 .stagger-3 {
-  animation: fadeInUp 200ms var(--ease-out-quint) both;
-  animation-delay: 80ms;
+  animation: fadeInUp 200ms var(--ease-out-fluid) backwards;
+  animation-delay: 40ms;
 }
 .stagger-4 {
-  animation: fadeInUp 200ms var(--ease-out-quint) both;
-  animation-delay: 120ms;
+  animation: fadeInUp 200ms var(--ease-out-fluid) backwards;
+  animation-delay: 60ms;
 }
+
+/* Application feedback. Landing styles remain independently scoped above.
+   Full motion is an explicit product preference, including body portals. */
+html[data-ui-motion="full"] :is(button, input, select, textarea, .btn-tactile, [role="tab"]):not(.landing-motion *) {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-smooth);
+}
+html[data-ui-motion="full"] [class~="transition-all"]:not(.landing-motion *) {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform, scale;
+}
+html[data-ui-motion="full"] :is(button, input, select, textarea):focus-visible:not(.landing-motion *) {
+  transition: none;
+}
+html[data-ui-motion="full"] :is(button, .btn-tactile):disabled:not(.landing-motion *),
+html[data-ui-motion="full"] [aria-disabled="true"]:not(.landing-motion *) {
+  transform: none;
+  scale: 1;
+}
+html[data-ui-motion="full"] :is(.ui-press, button[type="submit"]):active:enabled:not(.landing-motion *) { scale: 0.97; }
+html[data-ui-motion="full"] button:is(.bg-green-700, .bg-emerald-700, .bg-red-600):active:enabled:not(.landing-motion *) { scale: 0.97; }
+html[data-ui-motion="full"] .ui-press-small:active:enabled { scale: 0.95; }
+html[data-ui-motion="full"] :is(.ui-ghost, .btn-ghost, [role="tab"]):active:not(.landing-motion *) { transform: none !important; scale: 1 !important; }
+.ui-card {
+  transition: transform 150ms var(--ease-smooth), scale 150ms var(--ease-smooth), border-color 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth);
+}
+.ui-card-icon { transition: transform 150ms var(--ease-smooth); }
+/* Auth pages have explicit entrances, not just shared control transitions.
+   Each finishes within 300ms and never hides or disables a form control. */
+@keyframes authEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.auth-page-enter { animation: authEnter 250ms var(--ease-out-fluid) backwards; }
+.auth-step-enter { animation: authEnter 200ms var(--ease-out-fluid) backwards; }
+.auth-info-card {
+  animation: authEnter 200ms var(--ease-out-fluid) backwards;
+  transition: translate 150ms var(--ease-smooth), border-color 150ms var(--ease-smooth), background-color 150ms var(--ease-smooth);
+}
+.auth-info-card:nth-child(2) { animation-delay: 20ms; }
+.auth-info-card:nth-child(3) { animation-delay: 40ms; }
+.auth-form-card { transition: border-color 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth); }
+.auth-form-card:focus-within { border-color: rgb(21 128 61 / 45%); }
+@media (hover: hover) and (pointer: fine) {
+  .auth-info-card:hover {
+    translate: 0 -3px;
+    border-color: rgb(255 255 255 / 45%);
+    background-color: rgb(255 255 255 / 16%);
+  }
+}
+html[data-ui-input="keyboard"] :is(.auth-page-enter, .auth-step-enter, .auth-info-card, .auth-form-card) {
+  animation: none !important;
+  transition: none !important;
+}
+.ui-card[role="button"]:active:not([aria-disabled="true"]) { scale: 0.99; }
+.ui-card-static { transition: border-color 150ms var(--ease-smooth), background-color 150ms var(--ease-smooth); }
+.ui-nav-link { transition: color 150ms var(--ease-smooth), background-color 150ms var(--ease-smooth), border-color 150ms var(--ease-smooth); }
+.ui-map-popup { transform-origin: var(--transform-origin, bottom center); }
+.maplibregl-popup-anchor-top .ui-map-popup { --transform-origin: top center; }
+.maplibregl-popup-anchor-bottom .ui-map-popup { --transform-origin: bottom center; }
+.maplibregl-popup-anchor-left .ui-map-popup { --transform-origin: left center; }
+.maplibregl-popup-anchor-right .ui-map-popup { --transform-origin: right center; }
+.maplibregl-popup-anchor-top-left .ui-map-popup { --transform-origin: top left; }
+.maplibregl-popup-anchor-top-right .ui-map-popup { --transform-origin: top right; }
+.maplibregl-popup-anchor-bottom-left .ui-map-popup { --transform-origin: bottom left; }
+.maplibregl-popup-anchor-bottom-right .ui-map-popup { --transform-origin: bottom right; }
+.ui-tooltip {
+  opacity: 0;
+  transform: translateY(4px) scale(0.95);
+  transform-origin: bottom center;
+  transition: opacity 100ms var(--ease-in-quart), transform 100ms var(--ease-in-quart);
+}
+.group:focus-within > .ui-tooltip { opacity: 1; transform: none; transition: none; }
+@media (hover: hover) and (pointer: fine) {
+  .ui-card-static:hover { border-color: #a8a29e; }
+  .ui-card:not([aria-disabled="true"]):hover {
+    transform: translateY(-2px);
+    border-color: rgb(21 128 61 / 50%);
+    box-shadow: 0 4px 12px -8px rgb(10 42 26 / 25%);
+  }
+  .ui-card:not([aria-disabled="true"]):hover .ui-card-icon { transform: translateY(-1px) scale(1.04); }
+  .group:hover > .ui-tooltip { opacity: 1; transform: none; transition-duration: 150ms; transition-timing-function: var(--ease-out-fluid); }
+}
+@media (width < 1024px) {
+  .ui-drawer > .drawer-side {
+    transition: opacity 200ms var(--ease-in-quart), visibility 0s 200ms;
+  }
+  .ui-drawer > .drawer-side > :not(.drawer-overlay) {
+    will-change: auto;
+    transition: translate 200ms var(--ease-out-fluid);
+  }
+  .ui-drawer > .drawer-toggle:checked ~ .drawer-side {
+    transition: opacity 150ms var(--ease-out-fluid), visibility 0s;
+  }
+  .ui-drawer > .drawer-toggle:checked ~ .drawer-side > :not(.drawer-overlay) {
+    transition-duration: 300ms;
+  }
+}
+@media (width >= 1024px) {
+  .ui-drawer > .drawer-side,
+  .ui-drawer > .drawer-side > :not(.drawer-overlay) { transition: none; will-change: auto; }
+}
+@keyframes uiBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes uiBackdropOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes uiDialogIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+@keyframes uiDialogOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.98); } }
+.ui-presence[data-state="open"] > .fixed { animation: uiBackdropIn 200ms var(--ease-out-fluid); }
+.ui-presence[data-state="open"] > .fixed > :first-child,
+.ui-presence[data-state="open"] > dialog { animation: uiDialogIn 200ms var(--ease-out-fluid); }
+.ui-presence[data-state="closed"] > .fixed { animation: uiBackdropOut 150ms var(--ease-in-quart) forwards; pointer-events: none; }
+.ui-presence[data-state="closed"] > .fixed > :first-child,
+.ui-presence[data-state="closed"] > dialog { animation: uiDialogOut 150ms var(--ease-out-fluid) forwards; }
+.ui-presence[data-state="open"] > dialog::backdrop { animation: uiBackdropIn 200ms var(--ease-out-fluid); }
+.ui-presence[data-state="closed"] > dialog::backdrop { animation: uiBackdropOut 150ms var(--ease-in-quart) forwards; }
+.ui-presence.ui-alert[data-state="open"] > .fixed,
+.ui-presence.ui-alert[data-state="open"] > .fixed > :first-child,
+.ui-presence.ui-alert[data-state="closed"] > .fixed,
+.ui-presence.ui-alert[data-state="closed"] > .fixed > :first-child { animation-duration: 100ms; }
+@keyframes uiSheetIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes uiSheetOut { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@media (width < 640px) {
+  .ui-presence[data-state="open"] > .fixed.items-end > :first-child { animation: uiSheetIn 300ms var(--ease-out-fluid); }
+  .ui-presence[data-state="closed"] > .fixed.items-end { animation-duration: 200ms; }
+  .ui-presence[data-state="closed"] > .fixed.items-end > :first-child { animation: uiSheetOut 200ms var(--ease-out-fluid) forwards; }
+}
+.ui-presence[data-instant="true"] > .fixed,
+.ui-presence[data-instant="true"] > .fixed > :first-child,
+.ui-presence[data-instant="true"] > dialog,
+.ui-presence[data-instant="true"] > dialog::backdrop { animation: none !important; }
+html[data-ui-input="keyboard"] :is(.ui-card, .card-interactive):not(.landing-motion *),
+html[data-ui-input="keyboard"] :is(button, a, input, select, textarea, [role="button"]):active:not(.landing-motion *) {
+  transform: none !important;
+  scale: 1 !important;
+}
+html[data-ui-input="keyboard"] :is(button, a, input, select, textarea, [role="tab"], .btn-tactile, .ui-card, .ui-card-icon, .ui-card-static, .card-interactive, .ui-nav-link, .view-enter, .modal-enter, .stagger-1, .stagger-2, .stagger-3, .stagger-4, .animate-in, .drawer-side, .drawer-side > :not(.drawer-overlay)):not(.landing-motion *),
+html[data-ui-input="keyboard"] .ui-presence > .fixed,
+html[data-ui-input="keyboard"] .ui-presence > .fixed > :first-child,
+html[data-ui-input="keyboard"] .ui-presence > dialog {
+  transition: none !important;
+  animation: none !important;
+}
+/* Tabs, data rows, map camera surfaces and refetches never get entrances. */
+[role="tabpanel"]:not(.landing-motion *) { animation: none !important; }
+html[data-ui-motion="full"] tbody tr:not(.landing-motion *) { transition: none; }
 
 /* Accessibility: Safe fallback when users prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+  html:not([data-ui-motion="full"]) *:not(.landing-motion, .landing-motion *),
+  html:not([data-ui-motion="full"]) *:not(.landing-motion, .landing-motion *)::before,
+  html:not([data-ui-motion="full"]) *:not(.landing-motion, .landing-motion *)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .btn-tactile:active:not(:disabled),
-  .card-interactive:hover,
-  .card-interactive:active {
+  html:not([data-ui-motion="full"]) .btn-tactile:active:not(:disabled),
+  html:not([data-ui-motion="full"]) .card-interactive:hover,
+  html:not([data-ui-motion="full"]) .card-interactive:active {
     transform: none !important;
+    scale: 1 !important;
   }
 }
 

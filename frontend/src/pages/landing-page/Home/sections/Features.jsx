@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { ScanLine, QrCode, MessageSquare, MapPin } from "lucide-react";
 import FeaturesBg from '../../../../assets/home-icons/feature-bg.jpg';
@@ -41,25 +40,7 @@ const FEATURES = [
 export default function Features() {
   const headerRef = useScrollReveal({ threshold: 0.2 });
   const imgRef    = useScrollReveal({ threshold: 0.15 });
-  const gridRef   = useRef(null);
-
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          grid.querySelectorAll(".features-card").forEach((card, i) => {
-            setTimeout(() => card.classList.add("is-visible"), i * 100);
-          });
-          observer.unobserve(grid);
-        }
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(grid);
-    return () => observer.disconnect();
-  }, []);
+  const gridRef = useScrollReveal({ selector: ".features-card" });
 
   return (
     <section className="bg-brand-bg py-20 relative overflow-hidden">
@@ -92,10 +73,10 @@ export default function Features() {
         {/* 2x2 Feature Grid */}
         <div ref={gridRef} className="grid grid-cols-2 gap-6 max-[768px]:grid-cols-1 max-[560px]:gap-4">
           {FEATURES.map(({ icon: Icon, iconColor, title, desc, bg, border }, i) => (
-            <div key={i} className="features-card group bg-white p-6 sm:p-7 border border-stone-200 rounded-lg relative overflow-hidden cursor-default opacity-0 translate-y-6 transition-[opacity,transform,border-color] duration-300 hover:border-green-700">
+            <div key={i} className="landing-card features-card group bg-white p-6 sm:p-7 border border-stone-200 rounded-lg relative overflow-hidden cursor-default">
 
               {/* Icon Container */}
-              <div className={`w-12 h-12 ${bg} border ${border} rounded-md flex items-center justify-center mb-4 transition-transform duration-200 group-hover:scale-105`}>
+              <div className={`landing-card-icon w-12 h-12 ${bg} border ${border} rounded-md flex items-center justify-center mb-4`}>
                 <Icon className={`w-6 h-6 ${iconColor}`} strokeWidth={2} />
               </div>
 

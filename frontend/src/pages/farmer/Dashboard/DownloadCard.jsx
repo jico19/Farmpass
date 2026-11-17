@@ -37,13 +37,13 @@ const DownloadCard = ({ title, description, url, fileName, icon: Icon, isPrimary
 
     return (
         <>
-            <div className={`border rounded-none p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors ${
+            <div aria-disabled={isLoading || undefined} className={`ui-card border rounded-none p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
                 isPrimary 
                 ? 'border-green-600 bg-green-50/30' 
                 : 'border-stone-200 bg-white'
             }`}>
                 <div className="flex gap-4 items-start">
-                    <div className={`p-3 shrink-0 rounded-none ${
+                    <div className={`ui-card-icon p-3 shrink-0 rounded-none ${
                         isPrimary ? 'bg-green-700 text-white' : 'bg-stone-100 text-stone-400'
                     }`}>
                         <Icon size={20} />

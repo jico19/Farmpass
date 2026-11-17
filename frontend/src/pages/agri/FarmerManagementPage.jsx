@@ -248,25 +248,23 @@ const FarmerManagementPage = () => {
             </div>
 
             {/* Create Farmer Modal */}
-            {isCreateOpen && (
                 <FarmerFormModal 
+                    isOpen={isCreateOpen}
                     onClose={() => setIsCreateOpen(false)}
                     onSubmit={(data) => createMutation.mutate(data)}
                     isSubmitting={createMutation.isPending}
                     barangays={barangays}
                 />
-            )}
 
             {/* Edit Farmer Modal */}
-            {editUser && (
                 <FarmerFormModal 
+                    isOpen={!!editUser}
                     user={editUser}
                     onClose={() => setEditUser(null)}
                     onSubmit={(data) => updateMutation.mutate({ id: editUser.id, data })}
                     isSubmitting={updateMutation.isPending}
                     barangays={barangays}
                 />
-            )}
 
             {/* Custom Delete Confirmation Modal */}
             <ConfirmationModal
@@ -295,7 +293,6 @@ const FarmerManagementPage = () => {
             />
 
             {/* KYC Document Review Modal */}
-            {reviewingFarmer && (
                 <DocumentReviewModal
                     farmer={reviewingFarmer}
                     onClose={() => setReviewingFarmer(null)}
@@ -303,7 +300,6 @@ const FarmerManagementPage = () => {
                     onReject={(remarks) => verifyMutation.mutate({ id: reviewingFarmer.id, action: 'reject', remarks })}
                     isSubmitting={verifyMutation.isPending}
                 />
-            )}
         </div>
         </LoadingLayout>
     );

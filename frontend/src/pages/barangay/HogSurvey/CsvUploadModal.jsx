@@ -1,4 +1,5 @@
 import { X, Info, AlertCircle, UploadCloud } from 'lucide-react';
+import { withModalMotion } from '../../../lib/modalMotion';
 
 /**
  * CSV Batch Import Modal for Hog Surveys
@@ -86,4 +87,4 @@ const CsvUploadModal = ({ file, onFileChange, errors, onClose, isPending, onSubm
     );
 };
 
-export default CsvUploadModal;
+export default withModalMotion(CsvUploadModal);

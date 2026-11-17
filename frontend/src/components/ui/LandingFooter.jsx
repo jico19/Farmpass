@@ -65,8 +65,8 @@ export default function Footer() {
             {NAV_LINKS.map(({ label, path }) => (
               <li key={label}>
                 <button
-                  className="bg-transparent border-none cursor-pointer font-jakarta text-sm text-stone-400 py-1 text-left transition-colors duration-150 hover:text-white"
-                  onClick={() => { navigate(path); window.scrollTo(0, 0); }}
+                  className="bg-transparent border-none cursor-pointer font-jakarta text-sm text-stone-400 py-1 text-left transition-[color,opacity] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-100 hover-only:hover:text-white"
+                  onClick={() => navigate(path)}
                 >
                   {label}
                 </button>
@@ -84,12 +84,12 @@ export default function Footer() {
             {ACCOUNT_LINKS.map(({ label, path, disabled }) => (
               <li key={label}>
                 <button
-                  className={`bg-transparent border-none font-jakarta text-sm py-1 text-left transition-colors duration-150
+                  className={`bg-transparent border-none font-jakarta text-sm py-1 text-left transition-[color,opacity] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-100
                     ${disabled
                       ? "opacity-40 cursor-default text-stone-500"
-                      : "cursor-pointer text-stone-400 hover:text-white"
+                      : "cursor-pointer text-stone-400 hover-only:hover:text-white"
                     }`}
-                  onClick={() => { if (!disabled) { navigate(path); window.scrollTo(0, 0); } }}
+                  onClick={() => { if (!disabled) navigate(path); }}
                 >
                   {label}
                   {disabled && (
@@ -112,11 +112,11 @@ export default function Footer() {
             {CONTACT_ITEMS.map(({ icon: Icon, alt, label, href }) => (
               <li key={alt} className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-stone-900 border border-stone-800 flex items-center justify-center shrink-0 rounded-md">
-                  <Icon size={16} className="text-stone-400 group-hover:text-white transition-colors" />
+                  <Icon size={16} className="text-stone-400" />
                 </div>
                 <a
                   href={href}
-                  className="text-xs text-stone-400 no-underline leading-normal pt-1.5 break-words transition-colors duration-150 hover:text-white"
+                  className="text-xs text-stone-400 no-underline leading-normal pt-1.5 break-words transition-[color,opacity] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-100 hover-only:hover:text-white"
                 >
                   {label}
                 </a>

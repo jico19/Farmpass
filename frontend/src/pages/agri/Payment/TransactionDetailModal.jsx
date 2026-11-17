@@ -1,3 +1,4 @@
+import { withModalMotion } from '../../../lib/modalMotion';
 import {
   X,
   CheckCircle2,
@@ -251,4 +252,4 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
   );
 };
 
-export default TransactionDetailModal;
+export default withModalMotion(TransactionDetailModal, { when: (props) => props.isOpen && Boolean(props.transaction) });

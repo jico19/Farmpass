@@ -293,7 +293,7 @@ const RegisterPage = () => {
                 {/* Left Side: Brand Panel */}
                 <div className="hidden md:flex md:w-5/12 bg-green-700 p-12 flex-col justify-between text-white border-r border-stone-200">
                     <div>
-                        <div className="flex items-center gap-3 mb-10">
+                        <div className="auth-page-enter flex items-center gap-3 mb-10">
                             <img
                                 src={AgriLogo}
                                 alt="Sariaya Agriculture Logo"
@@ -309,7 +309,7 @@ const RegisterPage = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-4 max-w-sm">
+                        <div className="auth-page-enter space-y-4 max-w-sm">
                             <h2 className="text-3xl font-black text-white leading-tight uppercase tracking-tight">
                                 Registration <br />
                                 Completed
@@ -329,7 +329,7 @@ const RegisterPage = () => {
 
                 {/* Right Side: Success Confirmation Card */}
                 <div className="flex-1 flex items-center justify-center p-6 md:p-12">
-                    <div className="w-full max-w-md bg-white border border-stone-200 rounded-xl shadow-xs p-8 text-center space-y-6">
+                    <div key="registration-success" className="auth-page-enter auth-form-card w-full max-w-md bg-white border border-stone-200 rounded-xl shadow-xs p-8 text-center space-y-6">
                         <div className="mx-auto w-14 h-14 bg-green-50 border border-green-600 rounded-xl flex items-center justify-center text-green-700">
                             <CheckCircle2 size={32} />
                         </div>
@@ -390,7 +390,7 @@ const RegisterPage = () => {
             {/* Left Side: Brand Panel */}
             <div className="hidden md:flex md:w-5/12 bg-green-700 p-12 flex-col justify-between text-white border-r border-stone-200">
                 <div>
-                    <div className="flex items-center gap-3 mb-10">
+                    <div className="auth-page-enter flex items-center gap-3 mb-10">
                         <img
                             src={AgriLogo}
                             alt="Sariaya Agriculture Logo"
@@ -406,7 +406,7 @@ const RegisterPage = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-4 max-w-sm">
+                    <div className="auth-page-enter space-y-4 max-w-sm">
                         <h2 className="text-3xl font-black text-white leading-tight uppercase tracking-tight">
                             Farmer Registration
                         </h2>
@@ -417,7 +417,7 @@ const RegisterPage = () => {
 
                     {/* Operational Details */}
                     <div className="mt-12 space-y-3 max-w-sm text-xs">
-                        <div className="flex gap-3 items-start p-3 bg-white/10 border border-white/20 rounded-lg">
+                        <div className="auth-info-card flex gap-3 items-start p-3 bg-white/10 border border-white/20 rounded-lg">
                             <Building2 className="text-green-100 flex-shrink-0 mt-0.5" size={16} />
                             <div>
                                 <p className="font-bold text-white uppercase tracking-tight text-[11px]">Official Permitting Authority</p>
@@ -425,7 +425,7 @@ const RegisterPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex gap-3 items-start p-3 bg-white/10 border border-white/20 rounded-lg">
+                        <div className="auth-info-card flex gap-3 items-start p-3 bg-white/10 border border-white/20 rounded-lg">
                             <FileCheck2 className="text-green-100 flex-shrink-0 mt-0.5" size={16} />
                             <div>
                                 <p className="font-bold text-white uppercase tracking-tight text-[11px]">Required Credentials</p>
@@ -433,7 +433,7 @@ const RegisterPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex gap-3 items-start p-3 bg-white/10 border border-white/20 rounded-lg">
+                        <div className="auth-info-card flex gap-3 items-start p-3 bg-white/10 border border-white/20 rounded-lg">
                             <MapPin className="text-green-100 flex-shrink-0 mt-0.5" size={16} />
                             <div>
                                 <p className="font-bold text-white uppercase tracking-tight text-[11px]">Office Location</p>
@@ -451,7 +451,7 @@ const RegisterPage = () => {
 
             {/* Right Side: Interactive Registration Card */}
             <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 md:p-12 overflow-y-auto">
-                <div className="w-full max-w-lg bg-white border border-stone-200 rounded-xl shadow-xs p-6 sm:p-8 md:p-10 space-y-6 my-6">
+                <div key="registration-form" className="auth-page-enter auth-form-card w-full max-w-lg bg-white border border-stone-200 rounded-xl shadow-xs p-6 sm:p-8 md:p-10 space-y-6 my-6">
 
                     {/* Mobile Header Branding (Shown on mobile screens only) */}
                     <div className="flex md:hidden items-center justify-between pb-4 border-b border-stone-200">
@@ -508,16 +508,16 @@ const RegisterPage = () => {
                         {/* Progress Bar Track */}
                         <div className="w-full bg-stone-100 h-1 rounded-full overflow-hidden">
                             <div
-                                className="bg-green-700 h-full transition-all duration-100 ease-out"
+                                className="bg-green-700 h-full w-full origin-left transition-transform duration-300 ease-smooth motion-reduce:transition-none"
                                 style={{
-                                    width: currentStep === 1 ? "33%" : currentStep === 2 ? "66%" : "100%",
+                                    transform: `scaleX(${currentStep / 3})`,
                                 }}
                             ></div>
                         </div>
                     </div>
 
                     {/* Step Title & Subtitle */}
-                    <div className="space-y-1">
+                    <div key={`heading-${currentStep}`} className="auth-step-enter space-y-1">
                         <h1 className="text-2xl font-black text-stone-800 uppercase tracking-tight">
                             {currentStep === 1 && "Personal & Mobile Details"}
                             {currentStep === 2 && "Enter Verification Code"}
@@ -532,7 +532,7 @@ const RegisterPage = () => {
 
                     {/* Global Error Banner */}
                     {globalError && (
-                        <div className="bg-red-50 border-l-4 border-red-600 border border-stone-200 rounded-lg p-3.5 flex items-start gap-3">
+                        <div className="auth-step-enter bg-red-50 border-l-4 border-red-600 border border-stone-200 rounded-lg p-3.5 flex items-start gap-3">
                             <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={16} />
                             <div className="flex-1 text-xs">
                                 <p className="font-bold text-red-700 uppercase tracking-wide text-[11px] mb-0.5">Please check your information</p>
@@ -554,7 +554,7 @@ const RegisterPage = () => {
                     {currentStep === 1 && (
                         <form
                             onSubmit={handleSubmit(handleRequestOTP)}
-                            className="space-y-4"
+                            className="auth-step-enter space-y-4"
                         >
                             {/* First & Last Name */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -747,7 +747,7 @@ const RegisterPage = () => {
                     {/* STEP 2: In-line SMS OTP Verification */}
                     {/* ========================================================================= */}
                     {currentStep === 2 && (
-                        <div className="space-y-5">
+                        <div className="auth-step-enter space-y-5">
                             {/* Summary Pill with Edit Action */}
                             <div className="bg-stone-100 border border-stone-200 rounded-lg p-3.5 flex items-center justify-between text-xs">
                                 <div>
@@ -857,7 +857,7 @@ const RegisterPage = () => {
                     {currentStep === 3 && (
                         <form
                             onSubmit={handleSubmit(onFinalRegister)}
-                            className="space-y-4"
+                            className="auth-step-enter space-y-4"
                         >
                             {/* Verification Confirmed Badge */}
                             <div className="bg-green-50 border border-green-600 rounded-lg p-3 flex items-center justify-between text-xs text-green-700">

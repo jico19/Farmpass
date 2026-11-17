@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { Timer, Clock, Activity, ShieldAlert, FileCheck2, ScrollText } from "lucide-react";
 import BenefitsBg from '../../../../assets/home-icons/benefits-bg.jpg';
@@ -49,25 +48,14 @@ const BENEFITS = [
 ];
 
 function BenefitCard({ icon: Icon, color, title, desc, bg }) {
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.classList.add("is-visible"); observer.unobserve(el); } },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const cardRef = useScrollReveal({ threshold: 0.1 });
 
   return (
     <div ref={cardRef}
-      className="benefits-card bg-white/5 border border-white/10 p-5 rounded-lg cursor-default opacity-0 translate-y-6 transition-[opacity,transform,background-color] duration-200 hover:bg-white/10 group">
+      className="landing-card landing-card-dark benefits-card bg-white/5 border border-white/10 p-5 rounded-lg cursor-default">
 
       {/* Icon */}
-      <div className={`w-10 h-10 ${bg} border rounded-md flex items-center justify-center mb-3 transition-transform duration-200 group-hover:scale-105`}>
+      <div className={`landing-card-icon w-10 h-10 ${bg} border rounded-md flex items-center justify-center mb-3`}>
         <Icon className={`w-5 h-5 ${color}`} strokeWidth={2} />
       </div>
 

@@ -159,25 +159,21 @@ const OPVApplicationDetail = () => {
     return (
         <LoadingLayout loading={isLoading}>
         <>
-            {confirmModal && (
                 <ConfirmationModal
                     isOpen={!!confirmModal}
-                    onClose={confirmModal.onClose}
-                    onYes={confirmModal.onYes}
-                    title={confirmModal.title}
-                    message={confirmModal.message}
-                    yesText={confirmModal.yesText}
-                    yesVariant={confirmModal.yesVariant}
-                    type={confirmModal.type}
+                    onClose={confirmModal?.onClose}
+                    onYes={confirmModal?.onYes}
+                    title={confirmModal?.title}
+                    message={confirmModal?.message}
+                    yesText={confirmModal?.yesText}
+                    yesVariant={confirmModal?.yesVariant}
+                    type={confirmModal?.type}
                 />
-            )}
 
-            {selectedDocId && (
                 <DocumentViewModal 
                     doc_id={selectedDocId} 
                     onClose={() => setSelectedDocId(null)} 
                 />
-            )}
 
             <div className="flex-1 max-w-5xl mx-auto p-4 md:p-12 min-h-full bg-white space-y-12">
                 {/* Navigation */}

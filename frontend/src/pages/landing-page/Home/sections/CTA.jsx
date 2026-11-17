@@ -1,22 +1,11 @@
-import { useRef, useEffect } from "react";
+import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { useNavigate } from "react-router-dom";
 import LandingButton from '../../../../components/ui/LandingButton';
 import CtaBg from '../../../../assets/home-icons/CTA-bg.png';
 
 export default function CTA() {
   const navigate = useNavigate();
-  const ctaRef   = useRef(null);
-
-  useEffect(() => {
-    const el = ctaRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.classList.add("is-visible"); observer.unobserve(el); } },
-      { threshold: 0.2 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const ctaRef = useScrollReveal({ threshold: 0.2 });
 
   return (
     <section className="relative overflow-hidden pt-24 pb-20">
@@ -49,16 +38,14 @@ export default function CTA() {
               baseColor="#f5a623"
               onClick={() => {
                 navigate("/register");
-                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             />
           </div>
           <button
             type="button"
-            className="bg-transparent border-none font-jakarta text-[13px] text-white/60 cursor-pointer transition-colors duration-150 hover:text-white p-2"
+            className="bg-transparent border-none font-jakarta text-[13px] text-white/60 cursor-pointer transition-[color,opacity] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-100 hover-only:hover:text-white p-2"
             onClick={() => {
               navigate("/login");
-              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
             Already registered? Sign in

@@ -6,15 +6,7 @@ export default function FAQsCTA() {
   const navigate = useNavigate();
 
   const handleContact = () => {
-    navigate("/about");
-    setTimeout(() => {
-      const el = document.getElementById("contact-section");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    }, 150);
+    navigate("/about#contact-section");
   };
 
   return (
@@ -32,7 +24,7 @@ export default function FAQsCTA() {
           <button
             type="button"
             onClick={handleContact}
-            className="inline-flex items-center px-6 py-2.5 bg-white text-stone-900 font-jakarta text-[13px] font-bold rounded-md cursor-pointer transition-colors duration-150 hover:bg-stone-100"
+            className="inline-flex items-center px-6 py-2.5 bg-white text-stone-900 font-jakarta text-[13px] font-bold rounded-md cursor-pointer transition-[color,background-color,opacity,transform] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-[0.97] hover-only:hover:bg-stone-100"
           >
             Contact the Office
           </button>

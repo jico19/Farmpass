@@ -114,7 +114,7 @@ const InspectionHistory = () => {
                     results.map((log) => (
                         <div
                             key={log.id}
-                            className="bg-white border border-stone-200 rounded-xl p-4 sm:p-5 space-y-3 shadow-xs hover:border-green-600/50 transition-colors"
+                            className="ui-card-static bg-white border border-stone-200 rounded-xl p-4 sm:p-5 space-y-3 shadow-xs"
                         >
                             {/* Card Header: Application Code + Date/Time */}
                             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-2.5">

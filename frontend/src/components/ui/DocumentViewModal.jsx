@@ -1,5 +1,6 @@
 import Skeleton from 'react-loading-skeleton';
 import { useState } from 'react';
+import { withModalMotion } from '../../lib/modalMotion';
 import { 
     X, 
     AlertCircle, 
@@ -321,4 +322,4 @@ const DocumentViewModal = ({ doc_id, onClose }) => {
     );
 };
 
-export default DocumentViewModal;
+export default withModalMotion(DocumentViewModal, { when: (props) => props.isOpen !== false && Boolean(props.doc_id) });

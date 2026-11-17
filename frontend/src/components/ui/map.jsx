@@ -470,7 +470,7 @@ function MarkerPopup({
 
   return createPortal(<div
     className={cn(
-      "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
+      "ui-map-popup bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 duration-150 ease-out-fluid motion-reduce:animate-none relative rounded-md border p-3 shadow-md",
       className
     )}>
     {closeButton && (
@@ -544,7 +544,7 @@ function MarkerTooltip({
 
   return createPortal(<div
     className={cn(
-      "bg-foreground text-background animate-in fade-in-0 zoom-in-95 rounded-md px-2 py-1 text-xs shadow-md",
+      "bg-foreground text-background rounded-md px-2 py-1 text-xs shadow-md",
       className
     )}>
     {children}

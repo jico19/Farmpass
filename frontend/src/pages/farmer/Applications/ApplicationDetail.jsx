@@ -63,12 +63,10 @@ const ApplicationDetail = () => {
     return (
         <LoadingLayout loading={isLoading}>
         <>
-            {selectedDocId && (
                 <DocumentViewModal 
                     doc_id={selectedDocId} 
                     onClose={() => setSelectedDocId(null)} 
                 />
-            )}
 
             <div className="max-w-5xl mx-auto p-3 sm:p-6 md:p-8 min-h-screen bg-white font-sans">
                 {/* Navigation */}

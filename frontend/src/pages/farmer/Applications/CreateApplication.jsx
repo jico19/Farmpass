@@ -156,18 +156,16 @@ const CreateApplication = () => {
 
     return (
         <>
-            {confirmModal && (
                 <ConfirmationModal
                     isOpen={!!confirmModal}
-                    onClose={confirmModal.onClose}
-                    onYes={confirmModal.onYes}
-                    title={confirmModal.title}
-                    message={confirmModal.message}
-                    yesText={confirmModal.yesText}
-                    yesVariant={confirmModal.yesVariant}
-                    type={confirmModal.type}
+                    onClose={confirmModal?.onClose}
+                    onYes={confirmModal?.onYes}
+                    title={confirmModal?.title}
+                    message={confirmModal?.message}
+                    yesText={confirmModal?.yesText}
+                    yesVariant={confirmModal?.yesVariant}
+                    type={confirmModal?.type}
                 />
-            )}
             
             <div className="flex-1 max-w-3xl mx-auto p-3 sm:p-6 md:p-10 space-y-5 sm:space-y-8 bg-white min-h-full">
                 {/* Header & Friendly Guidance */}
@@ -192,8 +190,8 @@ const CreateApplication = () => {
                             </div>
                             <div className="w-full bg-stone-100 h-1.5 border border-stone-200 rounded-full overflow-hidden">
                                 <div 
-                                    className="bg-green-700 h-full transition-all duration-300 ease-out" 
-                                    style={{ width: `${(step / 3) * 100}%` }}
+                                    className="bg-green-700 h-full w-full origin-left transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+                                    style={{ transform: `scaleX(${step / 3})` }}
                                 />
                             </div>
                         </div>
@@ -203,14 +201,14 @@ const CreateApplication = () => {
                             {[1, 2, 3].map((num) => (
                                  <div key={num} className="flex items-center flex-1 last:flex-none">
                                      <div className="flex flex-col items-center gap-2">
-                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm border-2 transition-all duration-200
+                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm border-2 transition-[color,background-color,border-color,box-shadow] duration-150 ease-smooth motion-reduce:transition-none
                                              ${step > num 
                                                  ? "bg-green-700 border-green-700 text-white shadow-2xs" 
                                                  : step === num 
                                                      ? "bg-white border-stone-800 text-stone-800 ring-2 ring-stone-800/10" 
                                                      : "bg-white border-stone-200 text-stone-300"}`}
                                          >
-                                             {step > num ? <Check size={18} strokeWidth={3} className="animate-in zoom-in-50 duration-150" /> : num}
+                                             {step > num ? <Check size={18} strokeWidth={3} /> : num}
                                          </div>
                                          <span className={`text-[9px] font-black uppercase tracking-widest transition-colors duration-150 ${step >= num ? 'text-stone-800' : 'text-stone-300'}`}>
                                              {num === 1 ? "Travel Details" : num === 2 ? "Attach Files" : "Review & Send"}
@@ -220,8 +218,8 @@ const CreateApplication = () => {
                                          <div className="flex-1 px-4 self-start mt-5">
                                              <div className="h-[2px] w-full bg-stone-200 overflow-hidden">
                                                  <div 
-                                                     className="h-full bg-green-700 transition-all duration-400 ease-out" 
-                                                     style={{ width: step > num ? "100%" : "0%" }}
+                                                     className="h-full w-full origin-left bg-green-700 transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+                                                     style={{ transform: `scaleX(${step > num ? 1 : 0})` }}
                                                  />
                                              </div>
                                          </div>

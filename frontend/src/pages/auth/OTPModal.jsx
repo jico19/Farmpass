@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Smartphone, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { withModalMotion } from '../../lib/modalMotion';
 
 /**
  * OTP Verification Modal Component
@@ -160,4 +161,4 @@ const OTPModal = ({ isOpen, onClose, phone, onVerify, onResend, isVerifying, isR
     );
 };
 
-export default OTPModal;
+export default withModalMotion(OTPModal);

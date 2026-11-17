@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { ListOrdered } from "lucide-react";
 
@@ -21,33 +20,14 @@ const STEPS = [
     desc: "Your official livestock transport permit with checkpoint QR verification is available in your dashboard. Download the PDF to your device or present the QR code at roadside inspection checkpoints." },
 ];
 
-function GuideStep({ step, index }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            el.style.opacity = "1";
-            el.style.transform = "translateX(0)";
-          }, index * 10);
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [index]);
+function GuideStep({ step }) {
+  const ref = useScrollReveal();
 
   return (
     <div ref={ref}
-      style={{ opacity: 0, transform: "translateX(-1rem)", transition: "opacity 0.3s ease, transform 0.3s ease" }}
-      className="guide-step flex gap-4 items-start py-4 border-b border-stone-200 last:border-b-0">
+      className="reveal-block landing-guide-step guide-step flex gap-4 items-start py-4 border-b border-stone-200 last:border-b-0">
 
-      <div className="w-7 h-7 bg-green-700 text-white font-archivo text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 rounded-md">
+      <div className="landing-card-icon w-7 h-7 bg-green-700 text-white font-archivo text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 rounded-md">
         {step.n}
       </div>
 

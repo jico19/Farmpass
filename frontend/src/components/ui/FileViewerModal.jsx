@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useState } from 'react';
+import { withModalMotion } from '../../lib/modalMotion';
 import { 
     X, 
     ZoomIn, 
@@ -27,25 +27,6 @@ const FileViewerModal = ({ isOpen, onClose, fileUrl, title = "Document Preview",
     const [rotation, setRotation] = useState(0);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            document.body.style.overflow = originalOverflow;
-        };
-    }, [isOpen, onClose]);
-
     if (!isOpen || !fileUrl || typeof document === 'undefined') return null;
 
     const resolvedUrl = getAuthenticatedMediaUrl(fileUrl);
@@ -64,14 +45,14 @@ const FileViewerModal = ({ isOpen, onClose, fileUrl, title = "Document Preview",
         setRotation(0);
     };
 
-    return createPortal(
+    return (
         <div 
             onClick={onClose}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-2 sm:p-6 animate-in fade-in duration-150"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-2 sm:p-6"
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className={`bg-white border border-stone-200 flex flex-col shadow-xl transition-all ${
+                className={`bg-white border border-stone-200 flex flex-col shadow-xl ${
                     isFullscreen 
                         ? 'w-screen h-screen max-w-none max-h-none rounded-none' 
                         : 'w-full max-w-5xl h-[88vh] rounded-xl overflow-hidden'
@@ -237,10 +218,9 @@ const FileViewerModal = ({ isOpen, onClose, fileUrl, title = "Document Preview",
                     <span>Press ESC or click close to dismiss</span>
                 </div>
             </div>
-        </div>,
-        document.body
+        </div>
     );
 };
 
-export default FileViewerModal;
+export default withModalMotion(FileViewerModal, { when: (props) => props.isOpen && Boolean(props.fileUrl), portal: true });
 

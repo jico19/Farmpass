@@ -36,7 +36,7 @@ export default function PermitFees() {
             </thead>
             <tbody className="divide-y divide-stone-200 text-sm">
               {FEES.map(({ doc, fee }, i) => (
-                <tr key={i} className="hover:bg-stone-50/50 transition-colors">
+                <tr key={i} className="hover-only:hover:bg-stone-50/50">
                   <td className="px-4 py-3 text-stone-800">{doc}</td>
                   <td className="px-4 py-3 text-stone-900 font-medium text-right">{fee}</td>
                 </tr>

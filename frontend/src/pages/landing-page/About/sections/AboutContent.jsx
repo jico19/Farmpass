@@ -103,8 +103,8 @@ export default function AboutContent() {
             <div className="flex flex-col gap-2.5">
               {SDGS.map(({ code, title, desc }) => (
                 <div key={code}
-                  className="flex items-start gap-3 bg-white border border-stone-200 rounded-lg p-3.5 box-border">
-                  <div className="font-mono text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded px-2 py-0.5 shrink-0 mt-0.5 whitespace-nowrap">
+                  className="landing-card flex items-start gap-3 bg-white border border-stone-200 rounded-lg p-3.5 box-border">
+                  <div className="landing-card-icon font-mono text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded px-2 py-0.5 shrink-0 mt-0.5 whitespace-nowrap">
                     {code}
                   </div>
                   <p className="font-jakarta text-[13px] text-stone-700 leading-[1.6] m-0">

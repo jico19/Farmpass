@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { withModalMotion } from '../../lib/modalMotion';
 import { Users, X, Check } from 'lucide-react';
 
 /**
@@ -212,4 +213,4 @@ const FarmerFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays }) =
     );
 };
 
-export default FarmerFormModal;
+export default withModalMotion(FarmerFormModal);

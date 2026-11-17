@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { withModalMotion } from '../../lib/modalMotion';
 import { X, Eye, Check, Lock } from 'lucide-react';
 import FileViewerModal from '../../components/ui/FileViewerModal';
 
@@ -219,4 +220,4 @@ const DocumentReviewModal = ({ farmer, onClose, onApprove, onReject, isSubmittin
     );
 };
 
-export default DocumentReviewModal;
+export default withModalMotion(DocumentReviewModal, { when: (props) => props.isOpen !== false && Boolean(props.farmer) });
