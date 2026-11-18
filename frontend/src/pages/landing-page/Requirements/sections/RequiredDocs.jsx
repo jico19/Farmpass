@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { FileText, AlertTriangle } from "lucide-react";
 
@@ -29,26 +28,14 @@ const REMINDERS = [
 ];
 
 function DocCard({ doc }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.classList.add("is-visible"); observer.unobserve(el); } },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const ref = useScrollReveal();
 
   return (
     <div ref={ref}
-      className="rdoc-card group flex gap-4 items-start bg-white border border-stone-200 p-5 rounded-lg w-full
-        opacity-0 translate-y-5 transition-[opacity,transform,border-color] duration-300 ease-out
-        hover:border-stone-400">
+      className="landing-card rdoc-card flex gap-4 items-start bg-white border border-stone-200 p-5 rounded-lg w-full">
 
       {/* Number badge */}
-      <div className="w-7 h-7 bg-green-700 flex items-center justify-center text-white font-archivo text-xs font-bold shrink-0 mt-0.5 rounded-md">
+      <div className="landing-card-icon w-7 h-7 bg-green-700 flex items-center justify-center text-white font-archivo text-xs font-bold shrink-0 mt-0.5 rounded-md">
         {doc.number}
       </div>
 

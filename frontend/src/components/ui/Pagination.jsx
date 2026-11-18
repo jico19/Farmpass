@@ -61,7 +61,8 @@ const Pagination = ({ count, limit, offset, onPageChange }) => {
                         ) : (
                             <button
                                 onClick={() => onPageChange((page - 1) * limit)}
-                                className={`h-8 min-w-[2rem] px-2.5 text-xs font-black uppercase rounded-md transition-all shadow-2xs ${
+                                aria-current={currentPage === page ? 'page' : undefined}
+                                className={`ui-press-small h-8 min-w-[2rem] px-2.5 text-xs font-black uppercase rounded-md transition-[color,background-color,border-color,opacity,scale] duration-150 ease-smooth motion-reduce:transition-none shadow-2xs ${
                                     currentPage === page
                                         ? 'bg-green-700 border border-green-700 text-white'
                                         : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'

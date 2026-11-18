@@ -14,7 +14,7 @@ export default function Hero() {
                       max-[900px]:grid-cols-1 max-[900px]:px-6 max-[900px]:pt-14 max-[900px]:pb-20 max-[900px]:text-center">
 
         {/* LEFT: Content */}
-        <div className="flex flex-col">
+        <div className="landing-entrance flex flex-col">
 
           {/* Title */}
           <h1 className="font-archivo text-[clamp(36px,4.5vw,56px)] leading-[1.08] text-white mb-6 tracking-[-0.02em]">
@@ -38,16 +38,14 @@ export default function Hero() {
                 baseColor="#f5a623"
                 onClick={() => {
                   navigate("/register");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
               />
             </div>
             <button
               type="button"
-              className="inline-flex items-center justify-center bg-transparent border border-white/30 text-white font-jakarta text-[14px] font-semibold px-6 py-2.5 h-[46px] rounded-md cursor-pointer transition-colors duration-150 hover:bg-white/10 hover:border-white"
+              className="inline-flex items-center justify-center bg-transparent border border-white/30 text-white font-jakarta text-[14px] font-semibold px-6 py-2.5 h-[46px] rounded-md cursor-pointer transition-[color,background-color,border-color,opacity,transform] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-[0.97] hover-only:hover:bg-white/10 hover-only:hover:border-white"
               onClick={() => {
                 navigate("/requirements");
-                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             >
               View Requirements
@@ -63,9 +61,9 @@ export default function Hero() {
         </div>
 
         {/* RIGHT: Visual Mockup */}
-        <div className="relative flex items-center justify-center max-[900px]:mt-2">
+        <div className="landing-visual relative flex items-center justify-center max-[900px]:mt-2">
           {/* Mockup frame */}
-          <div className="relative z-[1] border border-white/20 bg-black/20 p-2 rounded-lg">
+          <div className="landing-preview relative z-[1] border border-white/20 bg-black/20 p-2 rounded-lg overflow-hidden">
             <img src={MockupImage} alt="FarmPass application preview" className="w-full max-w-[460px] block rounded-md" />
           </div>
         </div>

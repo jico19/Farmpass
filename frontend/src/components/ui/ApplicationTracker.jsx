@@ -76,9 +76,9 @@ const ApplicationTracker = ({ status }) => {
                 {/* Connecting Background Line */}
                 <div className="absolute top-[22px] left-[7%] right-[7%] h-[2px] bg-stone-200 -z-0">
                     <div 
-                        className="h-full bg-green-700 transition-all duration-500 ease-out"
+                        className="h-full w-full origin-left bg-green-700 transition-transform duration-300 ease-smooth motion-reduce:transition-none"
                         style={{ 
-                            width: currentStageIndex <= 0 ? '0%' : `${(currentStageIndex / 6) * 100}%` 
+                            transform: `scaleX(${currentStageIndex <= 0 ? 0 : currentStageIndex / 6})`
                         }}
                     />
                 </div>
@@ -90,7 +90,7 @@ const ApplicationTracker = ({ status }) => {
                     return (
                         <div key={stage.key} className="flex flex-col items-center text-center relative z-10 space-y-2">
                             {/* Step Indicator Badge */}
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs transition-all duration-200 border
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs transition-[color,background-color,border-color,box-shadow] duration-150 ease-smooth motion-reduce:transition-none border
                                 ${isCompleted 
                                     ? 'bg-green-700 border-green-700 text-white shadow-2xs' 
                                     : isCurrent 
@@ -98,7 +98,7 @@ const ApplicationTracker = ({ status }) => {
                                         : 'bg-white border-stone-200 text-stone-400'}`}
                             >
                                 {isCompleted ? (
-                                    <CheckCircle2 size={16} className="animate-in zoom-in-50 duration-200" />
+                                    <CheckCircle2 size={16} />
                                 ) : (
                                     idx + 1
                                 )}
@@ -124,8 +124,8 @@ const ApplicationTracker = ({ status }) => {
             <div className="md:hidden space-y-2">
                 <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden border border-stone-200">
                     <div 
-                        className="bg-green-700 h-full rounded-full transition-all duration-400 ease-out"
-                        style={{ width: `${((currentStageIndex + 1) / 7) * 100}%` }}
+                        className="bg-green-700 h-full w-full origin-left rounded-full transition-transform duration-300 ease-smooth motion-reduce:transition-none"
+                        style={{ transform: `scaleX(${(currentStageIndex + 1) / 7})` }}
                     ></div>
                 </div>
                 <div className="flex justify-between text-[9px] font-black uppercase tracking-wider text-stone-500">

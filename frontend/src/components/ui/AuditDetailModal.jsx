@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { withModalMotion } from '../../lib/modalMotion';
 import { 
     X, 
     Copy, 
@@ -188,4 +189,4 @@ const AuditDetailModal = ({ isOpen, onClose, log, categoryInfo }) => {
     );
 };
 
-export default AuditDetailModal;
+export default withModalMotion(AuditDetailModal, { when: (props) => props.isOpen && Boolean(props.log) });

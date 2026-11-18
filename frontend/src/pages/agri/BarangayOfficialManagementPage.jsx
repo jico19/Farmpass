@@ -1,4 +1,5 @@
 import LoadingLayout from '../../components/ui/LoadingLayout';
+import { withModalMotion } from '../../lib/modalMotion';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -331,25 +332,23 @@ const BarangayOfficialManagementPage = () => {
             </div>
 
             {/* Create Official Modal */}
-            {isCreateOpen && (
                 <OfficialFormModal 
+                    isOpen={isCreateOpen}
                     onClose={() => setIsCreateOpen(false)}
                     onSubmit={(data) => createMutation.mutate(data)}
                     isSubmitting={createMutation.isPending}
                     barangays={barangays}
                 />
-            )}
 
             {/* Edit Official Modal */}
-            {editUser && (
                 <OfficialFormModal 
+                    isOpen={!!editUser}
                     user={editUser}
                     onClose={() => setEditUser(null)}
                     onSubmit={(data) => updateMutation.mutate({ id: editUser.id, data })}
                     isSubmitting={updateMutation.isPending}
                     barangays={barangays}
                 />
-            )}
 
             {/* Custom Delete Confirmation Modal */}
             <ConfirmationModal
@@ -384,7 +383,7 @@ const BarangayOfficialManagementPage = () => {
 /**
  * Reusable Official Form Modal for Registration & Edit Details
  */
-const OfficialFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays }) => {
+const OfficialFormContent = ({ user, onClose, onSubmit, isSubmitting, barangays }) => {
     const isEdit = !!user;
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -598,5 +597,7 @@ const OfficialFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays })
         </div>
     );
 };
+
+const OfficialFormModal = withModalMotion(OfficialFormContent);
 
 export default BarangayOfficialManagementPage;

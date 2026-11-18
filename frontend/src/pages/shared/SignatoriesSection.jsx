@@ -8,6 +8,7 @@ import SignatoryDocumentOverview from './SignatoryDocumentOverview';
 import SignatoryOfficialRow from './SignatoryOfficialRow';
 import SignatoryEditorModal from './SignatoryEditorModal';
 import SignatoryModal from './SignatoryModal';
+import MotionPresence from '../../components/ui/MotionPresence';
 
 const NEW_OFFICIAL = { name: '', title: '', position: 'MUNICIPAL_AGRICULTURIST', is_default: false };
 
@@ -121,19 +122,21 @@ const SignatoriesSection = () => {
                     )}
                 </div>
             </div>
-            {editor && <SignatoryEditorModal official={editor} busy={isSaving} disabled={loadError} onClose={() => setEditor(null)} onSave={saveOfficial} />}
-            {retiring && (
+            <MotionPresence open={!!editor}>
+                <SignatoryEditorModal official={editor} busy={isSaving} disabled={loadError} onClose={() => setEditor(null)} onSave={saveOfficial} />
+            </MotionPresence>
+            <MotionPresence open={!!retiring}>
                 <SignatoryModal title="Retire official?" busy={isSaving} onClose={() => setRetiring(null)}>
                     <div className="p-5 space-y-3 text-sm text-stone-600">
-                        <p>{retiring.name} will no longer be used on new documents.</p>
-                        {retiring.is_default && documentsForPosition(retiring.position).length > 0 && <p className="text-amber-800">The municipal default will be used until you choose a replacement.</p>}
+                        <p>{retiring?.name} will no longer be used on new documents.</p>
+                        {retiring?.is_default && documentsForPosition(retiring.position).length > 0 && <p className="text-amber-800">The municipal default will be used until you choose a replacement.</p>}
                     </div>
                     <div className="px-5 py-4 border-t border-stone-200 flex justify-end gap-2">
                         <button type="button" autoFocus disabled={isSaving} onClick={() => setRetiring(null)} className="min-h-11 px-4 rounded-lg text-sm font-semibold text-stone-600 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-green-700 disabled:opacity-50">Cancel</button>
                         <button type="button" disabled={disabled} onClick={retireOfficial} className="min-h-11 px-4 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-red-700 disabled:opacity-50">{isSaving ? 'Retiring…' : 'Retire'}</button>
                     </div>
                 </SignatoryModal>
-            )}
+            </MotionPresence>
         </section>
     );
 };

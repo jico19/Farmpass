@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import useScrollReveal from "../../../../hooks/useScrollReveal";
 import { MapPin, Clock, Phone, Headphones } from "lucide-react";
 import LoginBg      from "../../../../assets/login-bg.png";
@@ -22,7 +21,11 @@ const CARDS = [
     icon: Phone,
     color: "text-sky-300",
     title: "Direct Inquiries",
-    lines: ["Office: (042) 525-8200", "Email: agri@sariaya.gov.ph", "Official Portal: sariaya.gov.ph"],
+    lines: [
+      { label: "Office: (042) 525-8200", href: "tel:0425258200" },
+      { label: "Email: agri@sariaya.gov.ph", href: "mailto:agri@sariaya.gov.ph" },
+      { label: "Official Portal: sariaya.gov.ph", href: "https://www.sariaya.gov.ph", external: true },
+    ],
     bg: "bg-sky-400/15 border-sky-400/30",
   },
   {
@@ -35,27 +38,17 @@ const CARDS = [
 ];
 
 function ContactCard({ card }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.classList.add("is-visible"); observer.unobserve(el); } },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const ref = useScrollReveal({ threshold: 0.1 });
 
   const Icon = card.icon;
 
   return (
     <div ref={ref}
-      className="contact-card-inner bg-white/10 border border-white/20 p-5 rounded-lg box-border w-full opacity-0 transition-[opacity,transform,background-color] duration-200 hover:bg-white/15 group">
+      className="landing-card landing-card-dark contact-card-inner bg-white/10 border border-white/20 p-5 rounded-lg box-border w-full">
 
       <div className="flex items-start gap-4">
         {/* Icon wrap */}
-        <div className={`w-11 h-11 shrink-0 ${card.bg} border rounded-md flex items-center justify-center mt-0.5 transition-transform duration-200 group-hover:scale-105`}>
+        <div className={`landing-card-icon w-11 h-11 shrink-0 ${card.bg} border rounded-md flex items-center justify-center mt-0.5`}>
           <Icon className={`w-5 h-5 ${card.color}`} strokeWidth={2} />
         </div>
 
@@ -65,7 +58,16 @@ function ContactCard({ card }) {
           </h3>
           <div className="flex flex-col gap-0.5 text-xs text-white/70">
             {card.lines.map((line, i) => (
-              <p key={i} className="font-jakarta leading-[1.6] m-0">{line}</p>
+              typeof line === "string" ? (
+                <p key={i} className="font-jakarta leading-[1.6] m-0">{line}</p>
+              ) : (
+                <a key={line.href} href={line.href}
+                  target={line.external ? "_blank" : undefined}
+                  rel={line.external ? "noopener noreferrer" : undefined}
+                  className="landing-contact-link font-jakarta leading-[1.6] text-white/80 hover-only:hover:text-white break-words">
+                  {line.label}
+                </a>
+              )
             ))}
           </div>
         </div>
@@ -75,7 +77,6 @@ function ContactCard({ card }) {
 }
 
 export default function AboutContact() {
-  const rightRef = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section id="contact-section" className="relative overflow-hidden py-20">
@@ -98,7 +99,7 @@ export default function AboutContact() {
           </p>
         </div>
 
-        <div ref={rightRef} className="reveal-block grid grid-cols-2 gap-4 max-[768px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-4 max-[768px]:grid-cols-1">
           {CARDS.map((card, i) => <ContactCard key={i} card={card} />)}
         </div>
       </div>

@@ -462,28 +462,26 @@ const HogSurveyPage = () => {
             />
 
             {/* Add Survey Modal */}
-            {isCreateModalOpen && (
                 <SurveyFormModal
+                    isOpen={isCreateModalOpen}
                     survey={null}
                     onClose={() => setIsCreateModalOpen(false)}
                     onSubmit={(data) => createMutation.mutate(data)}
                     isSubmitting={createMutation.isPending}
                 />
-            )}
 
             {/* Edit Survey Modal */}
-            {editingSurvey && (
                 <SurveyFormModal 
+                    isOpen={!!editingSurvey}
                     survey={editingSurvey}
                     onClose={() => setEditingSurvey(null)}
                     onSubmit={(data) => updateMutation.mutate({ id: editingSurvey.id, data })}
                     isSubmitting={updateMutation.isPending}
                 />
-            )}
 
             {/* CSV Import Modal */}
-            {isCsvModalOpen && (
                 <CsvUploadModal
+                    isOpen={isCsvModalOpen}
                     file={csvFile}
                     onFileChange={setCsvFile}
                     errors={csvErrors}
@@ -497,7 +495,6 @@ const HogSurveyPage = () => {
                     onDownloadTemplate={handleDownloadTemplate}
                     barangayName={user.barangay_name}
                 />
-            )}
 
             {/* Custom Delete Confirmation Modal */}
             <ConfirmationModal

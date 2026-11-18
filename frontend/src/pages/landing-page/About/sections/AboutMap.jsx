@@ -49,7 +49,7 @@ export default function AboutMap() {
             </div>
 
             <a href={GMAPS_URL} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-green-700 text-white font-jakarta text-[13px] font-semibold rounded-md no-underline whitespace-nowrap hover:bg-green-600 transition-colors duration-150 max-[640px]:w-full max-[640px]:justify-center">
+              className="inline-flex items-center px-4 py-2 bg-green-700 text-white font-jakarta text-[13px] font-semibold rounded-md no-underline whitespace-nowrap hover-only:hover:bg-green-600 transition-[color,background-color,opacity] duration-150 ease-smooth motion-reduce:transition-none motion-safe:active:scale-100 max-[640px]:w-full max-[640px]:justify-center">
               Open in Google Maps
             </a>
           </div>

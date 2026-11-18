@@ -1,4 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
+import { withModalMotion } from '../../../lib/modalMotion';
 import { toast } from 'sonner';
 import { Activity, User, Phone, X, Check, PlusCircle, Calendar } from 'lucide-react';
 
@@ -259,4 +260,4 @@ const SurveyFormModal = ({ survey, onClose, onSubmit, isSubmitting }) => {
     );
 };
 
-export default SurveyFormModal;
+export default withModalMotion(SurveyFormModal, { duration: 200 });

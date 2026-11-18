@@ -15,7 +15,7 @@ import {
     FileText,
     Users,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import useAuthStore from "../../store/authStore";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MobileNavbar from "./MobileNavbar";
@@ -33,9 +33,10 @@ const SidebarItem = ({ icon: Icon, label, to, badgeCount = 0 }) => {
         <li>
             <Link
                 to={to}
-                className={`flex items-center gap-3 px-6 py-2.5 transition-colors duration-150 relative ${isActive
+                aria-current={isActive ? "page" : undefined}
+                className={`ui-nav-link flex items-center gap-3 px-6 py-2.5 transition-[color,background-color,border-color] duration-150 ease-smooth motion-reduce:transition-none relative ${isActive
                     ? "bg-green-50 text-green-700 border-r-2 border-green-700"
-                    : "text-stone-600 border-r-2 border-transparent hover:bg-stone-50 hover:text-stone-900"
+                    : "text-stone-600 border-r-2 border-transparent hover-only:hover:bg-stone-50 hover-only:hover:text-stone-900"
                     }`}
             >
                 <div className="relative">
@@ -197,6 +198,39 @@ const Sidebar = ({ children }) => {
     const { user, isAuthenticated, logout } = useAuthStore();
     const navigate = useNavigate();
     const location = useLocation();
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const drawerRef = useRef(null);
+    const triggerRef = useRef(null);
+
+    useEffect(() => {
+        if (!drawerOpen) return;
+        const drawer = drawerRef.current;
+        const desktop = window.matchMedia('(min-width: 1024px)');
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        drawer.querySelector('a')?.focus({ preventScroll: true });
+        const onKey = (event) => {
+            if (event.key === 'Escape') {
+                setDrawerOpen(false);
+                triggerRef.current?.focus();
+            }
+            if (event.key === 'Tab') {
+                const controls = [...drawer.querySelectorAll('a[href], button:not(:disabled)')].filter((el) => el.getClientRects().length);
+                const first = controls[0];
+                const last = controls.at(-1);
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+            }
+        };
+        const onResize = () => { if (desktop.matches) setDrawerOpen(false); };
+        document.addEventListener('keydown', onKey);
+        desktop.addEventListener('change', onResize);
+        return () => {
+            document.body.style.overflow = previousOverflow;
+            document.removeEventListener('keydown', onKey);
+            desktop.removeEventListener('change', onResize);
+        };
+    }, [drawerOpen]);
 
     const isMobileFirstRole = user && (user.role === 'Farmer' || user.role === 'Inspector' || user.role === 'Barangay');
 
@@ -256,17 +290,17 @@ const Sidebar = ({ children }) => {
     };
 
     return (
-        <div className="drawer lg:drawer-open min-h-screen bg-stone-50 font-sans">
-            <input id="sidebar-drawer" type="checkbox" className="drawer-toggle" />
+        <div className="ui-drawer drawer lg:drawer-open min-h-screen bg-stone-50 font-sans">
+            <input id="sidebar-drawer" type="checkbox" className="drawer-toggle" checked={drawerOpen} onChange={(event) => setDrawerOpen(event.target.checked)} tabIndex={-1} aria-hidden="true" />
 
             {/* Main Content Area */}
-            <div className="drawer-content flex flex-col bg-white">
+            <div className="drawer-content flex flex-col bg-white" inert={drawerOpen || undefined}>
                 {/* Mobile Header - Hidden for mobile-first roles */}
                 {!isMobileFirstRole && (
                     <header className="navbar lg:hidden bg-white border-b border-stone-100 px-4">
-                        <label htmlFor="sidebar-drawer" className="btn btn-ghost btn-square text-stone-900 rounded-none">
+                        <button type="button" ref={triggerRef} onClick={() => setDrawerOpen(true)} aria-label="Open navigation" aria-expanded={drawerOpen} aria-controls="portal-navigation" className="btn btn-ghost btn-square text-stone-900 rounded-none">
                             <Menu size={24} />
-                        </label>
+                        </button>
                         <div className="flex-1 ml-2 font-black text-green-700 tracking-tighter text-xl">
                             FarmPass
                         </div>
@@ -314,8 +348,8 @@ const Sidebar = ({ children }) => {
             </div>
 
             {/* Sidebar UI - Hidden on mobile for mobile-first roles */}
-            <aside className={`drawer-side z-40 ${isMobileFirstRole ? 'hidden lg:flex' : ''}`}>
-                <label htmlFor="sidebar-drawer" className="drawer-overlay"></label>
+            <aside ref={drawerRef} id="portal-navigation" className={`drawer-side z-40 ${isMobileFirstRole ? 'hidden lg:flex' : ''}`}>
+                <label htmlFor="sidebar-drawer" aria-label="Close navigation" className="drawer-overlay"></label>
 
                 <div className="flex flex-col w-64 min-h-full bg-white border-r border-stone-200">
                     {/* App Branding & User Context */}
@@ -341,7 +375,12 @@ const Sidebar = ({ children }) => {
                     </div>
 
                     {/* Navigation Menu - Scrollable for smaller screen heights */}
-                    <nav className="flex-1 overflow-y-auto py-2">
+                    <nav className="flex-1 overflow-y-auto py-2" onClick={(event) => {
+                        if (event.target.closest('a') && drawerOpen) {
+                            setDrawerOpen(false);
+                            triggerRef.current?.focus();
+                        }
+                    }}>
                         {renderNavigation()}
                     </nav>
 

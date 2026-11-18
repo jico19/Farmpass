@@ -1,11 +1,12 @@
 import { X, ShieldCheck, Lock, Scale, CheckCircle2, FileText } from "lucide-react";
+import { withModalMotion } from '../../lib/modalMotion';
 
 /**
  * Terms and Privacy Agreement Modal
  * Aligned with FarmPass Design System Version 2.1 (Design.MD)
  * Explicit disclosure under Data Privacy Act of 2012 (RA 10173)
  */
-export default function TermsPrivacyModal({ isOpen, onClose, onAccept }) {
+function TermsPrivacyModal({ isOpen, onClose, onAccept }) {
     if (!isOpen) return null;
 
     return (
@@ -136,3 +137,5 @@ export default function TermsPrivacyModal({ isOpen, onClose, onAccept }) {
         </div>
     );
 }
+
+export default withModalMotion(TermsPrivacyModal);

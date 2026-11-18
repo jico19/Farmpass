@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { UserCheck, ClipboardList, ShieldCheck, QrCode } from "lucide-react";
 
@@ -35,25 +34,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   const headerRef = useScrollReveal({ threshold: 0.2 });
-  const stepsRef  = useRef(null);
-
-  useEffect(() => {
-    const container = stepsRef.current;
-    if (!container) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          container.querySelectorAll(".hiw-step").forEach((step, i) => {
-            setTimeout(() => step.classList.add("is-visible"), i * 100);
-          });
-          observer.unobserve(container);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
+  const stepsRef = useScrollReveal({ selector: ".hiw-step" });
 
   return (
     <section className="bg-brand-bg py-20 relative overflow-hidden">
@@ -71,14 +52,14 @@ export default function HowItWorks() {
         {/* Steps Grid */}
         <div ref={stepsRef} className="grid grid-cols-4 gap-6 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
           {STEPS.map(({ number, icon: Icon, title, desc, deliverable }, i) => (
-            <div key={i} className="hiw-step flex flex-col relative opacity-0 translate-y-6 transition-[opacity,transform] duration-300 ease-out">
+            <div key={i} className="hiw-step flex flex-col relative">
 
               {/* Step Card */}
-              <div className="bg-white p-6 border border-stone-200 rounded-lg h-full flex flex-col justify-between transition-[border-color,box-shadow,transform] duration-150 ease-out hover:-translate-y-0.5 hover:border-stone-400 hover:shadow-sm">
+              <div className="landing-card bg-white p-6 border border-stone-200 rounded-lg h-full flex flex-col justify-between">
                 <div>
                   {/* Top row: Icon badge + Monospace step counter */}
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <div className="w-10 h-10 bg-stone-50 border border-stone-200 rounded-md flex items-center justify-center shrink-0">
+                    <div className="landing-card-icon w-10 h-10 bg-stone-50 border border-stone-200 rounded-md flex items-center justify-center shrink-0">
                       <Icon className="w-5 h-5 text-green-800" strokeWidth={2} />
                     </div>
                     <span className="font-mono text-xs font-semibold text-stone-400">

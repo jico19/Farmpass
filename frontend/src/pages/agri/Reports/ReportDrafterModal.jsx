@@ -1,4 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
+import { withModalMotion } from '../../../lib/modalMotion';
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../../../lib/api";
 import { downloadBlob } from "../../../lib/utils";
@@ -181,6 +182,7 @@ const ReportDrafterModal = ({ isOpen, onClose, report, startDate, endDate }) => 
 
   return (
     <div
+      aria-busy={generating}
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-stone-900/50 backdrop-blur-xs transition-opacity"
       onClick={(e) => {
         if (e.target === e.currentTarget && !generating) onClose();
@@ -437,4 +439,4 @@ const ReportDrafterModal = ({ isOpen, onClose, report, startDate, endDate }) => 
   );
 };
 
-export default ReportDrafterModal;
+export default withModalMotion(ReportDrafterModal);

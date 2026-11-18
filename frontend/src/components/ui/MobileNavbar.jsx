@@ -75,7 +75,8 @@ const MobileNavbar = () => {
                         <Link
                             key={item.to}
                             to={item.to}
-                            className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors duration-150 relative ${
+                            aria-current={isActive ? 'page' : undefined}
+                            className={`ui-nav-link flex flex-col items-center justify-center flex-1 h-full gap-1 transition-[color,background-color] duration-150 ease-smooth motion-reduce:transition-none hover-only:hover:bg-stone-50 relative ${
                                 isActive ? 'text-green-700' : 'text-stone-400'
                             }`}
                         >

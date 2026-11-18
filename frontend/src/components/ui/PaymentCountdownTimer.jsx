@@ -38,7 +38,7 @@ export const PaymentCountdownTimer = ({ deadline, onExpire, compact = false }) =
     if (timeLeft.isExpired) {
         return (
             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300 ${compact ? '' : 'shadow-sm'}`}>
-                <AlertTriangle className="w-3.5 h-3.5 text-red-600 animate-bounce" />
+                <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
                 <span>Payment Window Expired</span>
             </div>
         );
@@ -47,7 +47,7 @@ export const PaymentCountdownTimer = ({ deadline, onExpire, compact = false }) =
     // Color code urgency based on remaining hours
     let colorStyle = 'bg-emerald-50 text-emerald-800 border-emerald-200';
     if (timeLeft.hours < 1) {
-        colorStyle = 'bg-red-50 text-red-800 border-red-300 animate-pulse font-bold';
+        colorStyle = 'bg-red-50 text-red-800 border-red-300 font-bold';
     } else if (timeLeft.hours < 4) {
         colorStyle = 'bg-amber-50 text-amber-800 border-amber-300';
     }
@@ -62,7 +62,7 @@ export const PaymentCountdownTimer = ({ deadline, onExpire, compact = false }) =
     }
 
     return (
-        <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-sm font-medium shadow-sm transition-all ${colorStyle}`}>
+        <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-sm font-medium shadow-sm transition-[color,background-color,border-color] duration-150 ease-smooth motion-reduce:transition-none ${colorStyle}`}>
             <Clock className="w-4 h-4" />
             <div className="flex items-center gap-1">
                 <span className="text-xs text-stone-500 font-normal">Payment Deadline:</span>

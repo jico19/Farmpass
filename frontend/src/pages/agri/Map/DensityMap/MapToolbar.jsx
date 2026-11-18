@@ -1,203 +1,99 @@
-import { Search, X, Calendar, Scale, RotateCcw, Upload, Map as MapIcon } from "lucide-react";
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Search, X, Upload, SlidersHorizontal, RotateCcw } from 'lucide-react';
 
-const CENSUS_PERIODS = [
-    { quarter: 1, label: 'Jan–Mar' },
-    { quarter: 2, label: 'Apr–Jun' },
-    { quarter: 3, label: 'Jul–Sep' },
-    { quarter: 4, label: 'Oct–Dec' },
-];
+const PERIODS = ['Jan–Mar', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec'];
+const control = 'min-h-11 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700';
 
-/**
- * Unified Slim Operations Header:
- * Combines page branding, barangay search, time horizon pills,
- * comparison capsule, total census badge, and upload action into a single clean bar.
- */
-const MapToolbar = ({ map, filters, totalPigs, onOpenUpload }) => {
-    const {
-        selectedBarangay,
-        setSelectedBarangay,
-        selectedYear,
-        setSelectedYear,
-        isCompareMode,
-        setIsCompareMode,
-        baselineYear,
-        setBaselineYear,
-        years,
-        selectedQuarter,
-        setSelectedQuarter,
-        availableQuarters,
-        periods,
-        clearFilters,
-        hasActiveFilters
-    } = filters;
-
+export default function MapToolbar({ map = [], filters, onOpenUpload }) {
+    const [query, setQuery] = useState('');
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const comparisonRef = useRef(null);
+    const comparisonInputRef = useRef('keyboard');
+    useLayoutEffect(() => {
+        const panel = comparisonRef.current;
+        if (!filters.isCompareMode || !panel || comparisonInputRef.current === 'keyboard') return;
+        const animation = panel.animate([
+            { height: '0px', opacity: 0, transform: 'translateY(-4px)' },
+            { height: `${panel.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' },
+        ], {
+            duration: 200,
+            easing: getComputedStyle(document.documentElement).getPropertyValue('--ease-out-fluid').trim() || 'cubic-bezier(0.32, 0.72, 0, 1)',
+        });
+        return () => animation.cancel();
+    }, [filters.isCompareMode]);
+    const matches = map.filter(item => item.name.toLowerCase().includes(query.toLowerCase()));
     return (
-        <div className="bg-white rounded-xl border border-stone-200 p-3.5 md:p-4 shadow-xs font-sans space-y-3">
-            
-            {/* MAIN ROW: Page Branding + Search + Time Horizon + Year Picker + Stats & Upload */}
-            <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3.5">
-                
-                {/* 1. Title & Search */}
-                <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
-                    <div className="flex items-center gap-2.5">
-                        <div className="p-2 bg-green-50 border border-green-200 rounded-lg text-green-700 shadow-2xs">
-                            <MapIcon size={18} />
-                        </div>
-                        <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-green-700 block leading-none">
-                                Swine Census
-                            </span>
-                            <h1 className="text-lg font-black uppercase tracking-tight text-stone-800 leading-tight whitespace-nowrap">
-                                Pig Population Map
-                            </h1>
-                        </div>
-                    </div>
-
-                    {/* Integrated Search Input */}
-                    <div className="relative w-full sm:w-56">
-                        <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
-                        <select
-                            className="w-full pl-8 pr-7 py-2 bg-white hover:bg-stone-50 border border-stone-200 text-xs font-semibold text-stone-800 rounded-lg focus:outline-none focus:border-green-700 focus:ring-1 focus:ring-green-700/20 shadow-2xs transition-all cursor-pointer"
-                            onChange={(e) => setSelectedBarangay(e.target.value || null)}
-                            value={selectedBarangay || ''}
-                        >
-                            <option value="">Find barangay...</option>
-                            {map?.map(b => (
-                                <option key={b.id} value={b.name}>{b.name}</option>
-                            ))}
-                        </select>
-                        {selectedBarangay && (
-                            <button
-                                type="button"
-                                onClick={() => setSelectedBarangay(null)}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 cursor-pointer"
-                                title="Clear focus"
-                            >
-                                <X size={13} />
-                            </button>
-                        )}
-                    </div>
+        <header className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 className="text-2xl font-black uppercase tracking-tight text-stone-800">Pig Population Map</h1>
+                    <p className="mt-1 text-sm text-stone-600">Sariaya · {PERIODS[filters.selectedQuarter - 1] || 'Select a period'} {filters.selectedYear}</p>
                 </div>
-
-                {/* 2. Calendar quarter segmented control */}
-                <div className="flex items-center bg-stone-100 p-1 rounded-lg border border-stone-200 self-start xl:self-center flex-wrap gap-0.5">
-                    {CENSUS_PERIODS.map(({ quarter, label }) => {
-                        const available = availableQuarters.includes(quarter);
-                        const period = periods.find(item => String(item.year) === selectedYear && item.quarter === quarter);
-                        return (
-                            <button key={quarter} type="button" disabled={!available}
-                                onClick={() => setSelectedQuarter(quarter)}
-                                title={available ? `Show ${label} ${selectedYear}` : `${label} ${selectedYear}: No data`}
-                                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
-                                    selectedQuarter === quarter
-                                        ? 'bg-green-700 text-white shadow-xs'
-                                        : available
-                                            ? 'text-stone-600 hover:text-stone-800 cursor-pointer'
-                                            : 'text-stone-400 cursor-not-allowed'
-                                }`}
-                            >
-                                {label}{!available ? <span className="sr-only"> (No data)</span> : period?.period_status === 'in_progress' ? <span className="sr-only"> (In progress)</span> : null}
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {/* 3. Year Selection & Comparison Capsule + Municipal Count + Upload Button */}
-                <div className="flex items-center gap-2.5 flex-wrap justify-end">
-                    
-                    {/* Year / Compare Mode */}
-                    {!isCompareMode ? (
-                        <div className="flex items-center gap-1.5">
-                            <div className="flex items-center gap-1 px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs shadow-2xs">
-                                <Calendar size={13} className="text-stone-400" />
-                                <select
-                                    className="bg-transparent font-bold text-stone-800 focus:outline-none cursor-pointer"
-                                    value={selectedYear}
-                                    onChange={(e) => setSelectedYear(e.target.value)}
-                                >
-                                    {years.map(year => (
-                                        <option key={year} value={year}>{year}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => setIsCompareMode(true)}
-                                className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 rounded-lg text-xs font-bold shadow-2xs transition-colors cursor-pointer"
-                            >
-                                <Scale size={12} className="text-green-700" />
-                                <span>Compare</span>
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-1.5 bg-stone-800 text-white px-2.5 py-1.5 rounded-lg border border-stone-800 text-xs shadow-xs">
-                            <Scale size={12} className="text-green-400 shrink-0" />
-                            <select
-                                className="bg-stone-700 text-white text-xs font-bold px-1.5 py-0.5 rounded-md border border-stone-600 cursor-pointer"
-                                value={baselineYear}
-                                onChange={(e) => setBaselineYear(e.target.value)}
-                            >
-                                {years.map(year => (
-                                    <option key={year} value={year}>{year}</option>
-                                ))}
-                            </select>
-                            <span className="text-stone-400 text-xs">vs</span>
-                            <select
-                                className="bg-stone-700 text-white text-xs font-bold px-1.5 py-0.5 rounded-md border border-stone-600 cursor-pointer"
-                                value={selectedYear}
-                                onChange={(e) => setSelectedYear(e.target.value)}
-                            >
-                                {years.map(year => (
-                                    <option key={year} value={year}>{year}</option>
-                                ))}
-                            </select>
-                            <button
-                                type="button"
-                                onClick={() => setIsCompareMode(false)}
-                                className="ml-1 text-stone-400 hover:text-white cursor-pointer"
-                                title="Exit Compare Mode"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Total Swine Pill (Single source of truth) */}
-                    <div className="bg-stone-50 border border-stone-200 px-3 py-1 rounded-lg text-right">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 block leading-none">
-                            Census
-                        </span>
-                        <span className="text-xs font-black text-stone-800 font-mono">
-                            {totalPigs.toLocaleString()} <span className="text-[10px] font-normal text-stone-500 font-sans">pigs</span>
-                        </span>
-                    </div>
-
-                    {/* Upload Survey Button */}
-                    <button 
-                        type="button"
-                        onClick={onOpenUpload}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-green-700 hover:bg-green-600 text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-xs active:scale-[0.98] transition-all cursor-pointer shrink-0"
-                    >
-                        <Upload size={13} />
-                        <span>Upload Survey</span>
-                    </button>
-
-                    {/* Reset Button */}
-                    {hasActiveFilters && (
-                        <button
-                            type="button"
-                            onClick={clearFilters}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg border border-stone-200 transition-colors cursor-pointer"
-                            title="Reset all filters"
-                        >
-                            <RotateCcw size={13} />
-                        </button>
-                    )}
-                </div>
+                <button type="button" onClick={onOpenUpload} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-green-700 px-4 text-sm font-bold text-white hover:bg-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700">
+                    <Upload size={16} /> Upload Survey
+                </button>
             </div>
-        </div>
+            <div className="rounded-xl border border-stone-200 bg-white p-3 shadow-xs">
+                <div className="flex flex-wrap items-end gap-3">
+                    <div className="relative min-w-0 flex-1 basis-48" onBlur={event => {
+                        if (!event.currentTarget.contains(event.relatedTarget)) setSearchOpen(false);
+                    }}>
+                        <label htmlFor="barangay-search" className="mb-1 block text-xs font-medium text-stone-600">Barangay</label>
+                        <div className="relative">
+                            <Search size={16} className="pointer-events-none absolute left-3 top-3.5 text-stone-500" />
+                            <input id="barangay-search" type="search" value={searchOpen ? query : filters.selectedBarangay || ''}
+                                placeholder="Find barangay…" className={`${control} w-full pr-10 pl-9`}
+                                onFocus={() => { setQuery(''); setSearchOpen(true); }}
+                                onChange={event => { setQuery(event.target.value); setSearchOpen(true); }}
+                                onKeyDown={event => {
+                                    if (event.key === 'Escape') setSearchOpen(false);
+                                    if (event.key === 'Enter' && matches.length === 1) {
+                                        filters.setSelectedBarangay(matches[0].name);
+                                        setSearchOpen(false);
+                                    }
+                                }} />
+                            {filters.selectedBarangay && <button type="button" aria-label="Clear selected barangay" onClick={() => { filters.setSelectedBarangay(null); setQuery(''); }} className="absolute right-0 top-0 flex size-11 items-center justify-center text-stone-600"><X size={16} /></button>}
+                        </div>
+                        {searchOpen && <div className="absolute top-full z-30 mt-1 max-h-64 w-full overflow-auto rounded-lg border border-stone-200 bg-white p-1 shadow-sm">
+                            <button type="button" onClick={() => { filters.setSelectedBarangay(null); setSearchOpen(false); }} className="min-h-11 w-full rounded-md px-3 text-left text-sm font-semibold text-green-700 hover:bg-green-50">All barangays</button>
+                            {matches.map(item => <button key={item.id} type="button" onClick={() => { filters.setSelectedBarangay(item.name); setSearchOpen(false); }} className="min-h-11 w-full rounded-md px-3 text-left text-sm hover:bg-stone-100 focus-visible:bg-green-50">{item.name}</button>)}
+                            {!matches.length && <p className="p-3 text-sm text-stone-600">No matching barangays.</p>}
+                        </div>}
+                    </div>
+                    <button type="button" aria-expanded={filtersOpen} aria-controls="map-period-filters" onClick={() => setFiltersOpen(!filtersOpen)} className={`${control} inline-flex items-center gap-2 md:hidden`}><SlidersHorizontal size={16} /> Filters</button>
+                    <div id="map-period-filters" className={`${filtersOpen ? 'flex' : 'hidden'} w-full flex-wrap items-end gap-3 md:flex md:w-auto`}>
+                        <label className="flex flex-col gap-1 text-xs font-medium text-stone-600">Year
+                            <select value={filters.selectedYear} onChange={event => filters.setSelectedYear(event.target.value)} className={control}>
+                                {!filters.years.length && <option value="">No periods</option>}
+                                {filters.years.map(year => <option key={year}>{year}</option>)}
+                            </select>
+                        </label>
+                        <label className="flex flex-col gap-1 text-xs font-medium text-stone-600">Quarter
+                            <select value={filters.selectedQuarter || ''} onChange={event => filters.setSelectedQuarter(event.target.value)} className={control}>
+                                {!filters.selectedQuarter && <option value="">No periods</option>}
+                                {PERIODS.map((period, index) => <option key={period} value={index + 1} disabled={!filters.availableQuarters.includes(index + 1)}>{period}{!filters.availableQuarters.includes(index + 1) ? ' · No data' : ''}</option>)}
+                            </select>
+                        </label>
+                        <button type="button" aria-pressed={filters.isCompareMode} aria-expanded={filters.isCompareMode} aria-controls="map-comparison-controls" disabled={filters.years.length < 2} onClick={event => {
+                            comparisonInputRef.current = event.detail === 0 ? 'keyboard' : 'pointer';
+                            filters.setIsCompareMode(!filters.isCompareMode);
+                        }} className={`${control} font-semibold disabled:opacity-50 ${filters.isCompareMode ? 'bg-green-50 text-green-700' : ''}`}>Compare years</button>
+                        {filters.hasActiveFilters && <button type="button" onClick={filters.clearFilters} className={`${control} inline-flex items-center gap-2`}><RotateCcw size={16} /> Reset</button>}
+                    </div>
+                </div>
+                {filters.isCompareMode && <div id="map-comparison-controls" ref={comparisonRef} className="overflow-hidden">
+                    <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-stone-200 pt-3 text-sm text-stone-600">
+                    <label className="flex items-center gap-2">Baseline year
+                        <select value={filters.baselineYear} onChange={event => filters.setBaselineYear(event.target.value)} className={control}>
+                            {filters.years.filter(year => year !== filters.selectedYear).map(year => <option key={year}>{year}</option>)}
+                        </select>
+                    </label>
+                    <span>→ Target {filters.selectedYear} · Same quarter</span>
+                    <button type="button" onClick={() => filters.setIsCompareMode(false)} className="min-h-11 px-2 font-semibold text-green-700">Exit comparison</button>
+                    </div>
+                </div>}
+            </div>
+        </header>
     );
-};
-
-export default MapToolbar;
+}

@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useLayoutEffect, useId } from "react";
+import useScrollReveal from '../../../../hooks/useScrollReveal';
 
 const CATEGORIES = [
   {
@@ -98,26 +99,49 @@ const CATEGORIES = [
 ];
 
 function AccordionItem({ item, isOpen, onToggle }) {
+  const id = useId();
+  const panelRef = useRef(null);
+  const contentRef = useRef(null);
+  const wasOpen = useRef(false);
+
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    const content = contentRef.current;
+    const instant = document.documentElement.dataset.landingInput === "keyboard";
+    panel.dataset.instant = String(instant);
+    panel.hidden = !isOpen && (!wasOpen.current || instant);
+    wasOpen.current = isOpen;
+    const measure = () => panel.style.setProperty("--answer-height", `${content.scrollHeight}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [isOpen]);
+
   return (
-    <div className={`bg-white border rounded-lg transition-colors duration-150 overflow-hidden
+    <div className={`bg-white border rounded-lg transition-[border-color] duration-150 ease-smooth motion-reduce:transition-none overflow-hidden
       ${isOpen ? "border-green-700" : "border-stone-200"}`}>
 
-      <button onClick={onToggle}
+      <button type="button" onClick={onToggle} id={`${id}-trigger`} aria-expanded={isOpen} aria-controls={`${id}-answer`}
         className={`w-full flex items-center justify-between gap-4 px-5 py-4 bg-transparent border-none cursor-pointer text-left
-          font-jakarta text-sm sm:text-base font-semibold transition-colors duration-150 box-border
+          font-jakarta text-sm sm:text-base font-semibold transition-[color,background-color,opacity] duration-150 ease-smooth motion-reduce:transition-none hover-only:hover:bg-green-50/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-green-700 box-border
           ${isOpen ? "text-green-800" : "text-stone-900"}`}>
         <span>{item.q}</span>
 
         {/* +/× icon */}
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 relative transition-transform duration-200
+        <div aria-hidden="true" className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 relative transition-transform duration-150 ease-smooth motion-reduce:transition-none
           ${isOpen ? "rotate-45 bg-green-50 text-green-800" : "bg-stone-100 text-stone-500"}`}>
           <span className="text-base leading-none font-medium">+</span>
         </div>
       </button>
 
       {/* Animated answer */}
-      <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="overflow-hidden">
+      <div ref={panelRef} id={`${id}-answer`} aria-labelledby={`${id}-trigger`}
+        className="landing-faq-panel motion-reduce:animate-none" data-open={isOpen} inert={!isOpen} aria-hidden={!isOpen}
+        onAnimationEnd={(event) => {
+          if (event.target === event.currentTarget && !isOpen) event.currentTarget.hidden = true;
+        }}>
+        <div ref={contentRef} className="overflow-hidden">
           <div className="px-5 pb-5 pt-1 border-t border-stone-100">
             {item.a.split("\n").filter(l => l.trim()).map((line, i) => (
               <p key={i} className="font-jakarta text-xs sm:text-sm text-stone-600 leading-relaxed mt-2 mb-0">{line}</p>
@@ -131,18 +155,7 @@ function AccordionItem({ item, isOpen, onToggle }) {
 
 function Category({ cat }) {
   const [openIndex, setOpenIndex] = useState(null);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.classList.add("is-visible"); observer.unobserve(el); } },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const ref = useScrollReveal({ threshold: 0.1 });
 
   return (
     <div ref={ref} className="reveal-block">

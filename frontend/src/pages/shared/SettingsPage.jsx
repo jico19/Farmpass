@@ -1,4 +1,5 @@
 import LoadingField from '../../components/ui/LoadingField';
+import MotionPresence from '../../components/ui/MotionPresence';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -379,7 +380,7 @@ const SettingsPage = () => {
                 )}
             </div>
 
-            {pendingProfile && (
+            <MotionPresence open={!!pendingProfile} onDismiss={() => { if (!isVerifyingCode && !isSendingCode) setPendingProfile(null); }}>
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4 animate-in fade-in duration-150" role="dialog" aria-modal="true" aria-labelledby="verify-email-title">
                     <form onSubmit={confirmEmail} className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-xl modal-enter">
                         <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-green-200 bg-green-50 text-green-700 animate-in zoom-in-75 duration-200">
@@ -387,7 +388,7 @@ const SettingsPage = () => {
                         </div>
                         <div className="view-enter">
                             <h2 id="verify-email-title" className="text-lg font-black text-stone-900">Verify your email</h2>
-                            <p className="mt-1 text-xs text-stone-600">Enter the 6-digit code sent to <span className="font-semibold">{pendingProfile.email}</span>. It expires in 10 minutes.</p>
+                            <p className="mt-1 text-xs text-stone-600">Enter the 6-digit code sent to <span className="font-semibold">{pendingProfile?.email}</span>. It expires in 10 minutes.</p>
                         </div>
                         <label htmlFor="email-code" className="mt-5 block text-[10px] font-black uppercase tracking-widest text-stone-600">Verification Code</label>
                         <input
@@ -404,7 +405,7 @@ const SettingsPage = () => {
                                 setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6));
                                 setVerificationError('');
                             }}
-                            className={`mt-1 h-12 w-full rounded-lg border text-center font-mono text-xl font-bold tracking-[0.4em] text-stone-900 outline-none transition-all duration-150 focus:border-green-700 focus:ring-2 focus:ring-green-100 ${verificationCode.length === 6 ? 'border-green-500 bg-green-50/40' : 'border-stone-200'}`}
+                            className={`mt-1 h-12 w-full rounded-lg border text-center font-mono text-xl font-bold tracking-[0.4em] text-stone-900 outline-none transition-[background-color,border-color,box-shadow] duration-150 ease-smooth motion-reduce:transition-none focus:border-green-700 focus:ring-2 focus:ring-green-100 ${verificationCode.length === 6 ? 'border-green-500 bg-green-50/40' : 'border-stone-200'}`}
                         />
                         {verificationError && <p className="mt-2 text-xs font-medium text-red-600 animate-in fade-in slide-in-from-top-1 duration-150">{verificationError}</p>}
                         <button type="submit" disabled={isVerifyingCode || verificationCode.length !== 6} className="btn-tactile mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-green-700 px-4 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-green-600 disabled:opacity-50">
@@ -419,12 +420,12 @@ const SettingsPage = () => {
                         </div>
                         {resendCooldown > 0 && (
                             <div className="mt-3 h-1 overflow-hidden rounded-full bg-stone-100" aria-hidden="true">
-                                <div className="h-full rounded-full bg-green-600 transition-[width] duration-1000 ease-linear" style={{ width: `${(resendCooldown / 60) * 100}%` }} />
+                                <div className="h-full w-full origin-left rounded-full bg-green-600 transition-transform duration-300 ease-smooth motion-reduce:transition-none" style={{ transform: `scaleX(${resendCooldown / 60})` }} />
                             </div>
                         )}
                     </form>
                 </div>
-            )}
+            </MotionPresence>
         </div>
     );
 };

@@ -78,7 +78,8 @@ const useMapFilters = (metadata) => {
         activeFilters, selectedBarangay, activeMapLayer,
         setActiveMapLayer, setSelectedYear, setSelectedQuarter, setBaselineYear,
         setIsCompareMode: setCompareMode, setSelectedBarangay, toggleFilter, clearFilters,
-        hasActiveFilters: selectedBarangay !== null || isCompareMode || activeFilters.length < DENSITY_LEVELS.length || activeMapLayer !== 'density',
+        hasActiveFilters: selectedBarangay !== null || isCompareMode || activeFilters.length < DENSITY_LEVELS.length || activeMapLayer !== 'density'
+            || selectedYearState !== null || selectedQuarterState !== null,
     };
 };
 

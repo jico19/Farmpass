@@ -35,7 +35,7 @@ const ActionGroup = ({ buttons = [] }) => {
                     >
                         {/* Custom Flat Tooltip with smooth origin-aware transition */}
                         {label && (
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 ease-out translate-y-1 group-hover:translate-y-0 scale-95 group-hover:scale-100 bg-stone-800 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md shadow-xs whitespace-nowrap z-50">
+                            <div aria-hidden="true" className="ui-tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none bg-stone-800 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md shadow-xs whitespace-nowrap z-50">
                                 {label}
                             </div>
                         )}
@@ -44,15 +44,16 @@ const ActionGroup = ({ buttons = [] }) => {
                             type="button"
                             onClick={handleClick}
                             disabled={isDisabled}
+                            aria-label={label}
                             className={`
                                 h-9 w-9 flex items-center justify-center
                                 border border-stone-200
-                                rounded-lg bg-white shadow-2xs btn-tactile
+                                rounded-lg bg-white shadow-2xs ui-press-small
                                 ${isDisabled
                                     ? "bg-stone-50 text-stone-300 border-stone-100 cursor-not-allowed shadow-none"
                                     : isDestructive
-                                        ? "text-stone-500 hover:bg-red-600 hover:text-white hover:border-red-600"
-                                        : "text-stone-500 hover:bg-green-700 hover:text-white hover:border-green-700"
+                                        ? "text-stone-500 hover-only:hover:bg-red-600 hover-only:hover:text-white hover-only:hover:border-red-600"
+                                        : "text-stone-500 hover-only:hover:bg-green-700 hover-only:hover:text-white hover-only:hover:border-green-700"
                                 }
                             `}
                         >
