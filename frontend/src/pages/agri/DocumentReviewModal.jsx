@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { X, Eye, Check, Lock } from 'lucide-react';
 import FileViewerModal from '../../components/ui/FileViewerModal';
 
@@ -47,8 +47,8 @@ const DocumentReviewModal = ({ farmer, onClose, onApprove, onReject, isSubmittin
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-            <div className="bg-white border border-stone-200 rounded-2xl max-w-3xl w-full p-6 space-y-6 shadow-xl max-h-[90vh] overflow-y-auto modal-enter">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-4">
+            <div className="bg-white border border-stone-200 rounded-2xl max-w-3xl w-full p-6 space-y-6 shadow-xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-start border-b border-stone-200/80 pb-4">
                     <div>
                         <div className="flex items-center gap-2">
@@ -220,4 +220,4 @@ const DocumentReviewModal = ({ farmer, onClose, onApprove, onReject, isSubmittin
     );
 };
 
-export default withModalMotion(DocumentReviewModal, { when: (props) => props.isOpen !== false && Boolean(props.farmer) });
+export default withAnimatedDialog(DocumentReviewModal, { when: (props) => props.isOpen !== false && Boolean(props.farmer) });

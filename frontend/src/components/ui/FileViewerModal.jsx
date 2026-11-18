@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { 
     X, 
     ZoomIn, 
@@ -222,5 +222,5 @@ const FileViewerModal = ({ isOpen, onClose, fileUrl, title = "Document Preview",
     );
 };
 
-export default withModalMotion(FileViewerModal, { when: (props) => props.isOpen && Boolean(props.fileUrl), portal: true });
+export default withAnimatedDialog(FileViewerModal, { when: (props) => props.isOpen && Boolean(props.fileUrl), portal: true });
 

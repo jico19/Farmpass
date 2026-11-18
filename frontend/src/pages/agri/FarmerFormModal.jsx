@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { Users, X, Check } from 'lucide-react';
 
 /**
@@ -23,7 +23,7 @@ const FarmerFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays }) =
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs">
-            <div className="bg-white w-full max-w-xl border border-stone-200 shadow-xl rounded-2xl overflow-hidden max-h-[90vh] flex flex-col modal-enter">
+            <div className="bg-white w-full max-w-xl border border-stone-200 shadow-xl rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-stone-200 bg-stone-50/60 shrink-0">
                     <div className="flex items-center gap-2.5">
@@ -213,4 +213,4 @@ const FarmerFormModal = ({ user, onClose, onSubmit, isSubmitting, barangays }) =
     );
 };
 
-export default withModalMotion(FarmerFormModal);
+export default withAnimatedDialog(FarmerFormModal);

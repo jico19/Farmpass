@@ -53,7 +53,7 @@ const AgriOfficerKPIDashboard = () => {
 
             {/* KPI Grid with subtle stagger entrance */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="stagger-1">
+                <div>
                     <KPICard
                         title="Needs Attention"
                         value={kpis.pending_agri_review}
@@ -62,7 +62,7 @@ const AgriOfficerKPIDashboard = () => {
                         colorClass="bg-red-50 text-red-600"
                     />
                 </div>
-                <div className="stagger-2">
+                <div>
                     <KPICard
                         title="For OPV Review"
                         value={kpis.currently_at_opv}
@@ -71,7 +71,7 @@ const AgriOfficerKPIDashboard = () => {
                         colorClass="bg-blue-50 text-blue-600"
                     />
                 </div>
-                <div className="stagger-3">
+                <div>
                     <KPICard
                         title="OPV Approved"
                         value={kpis.opv_validated || kpis.opv_approved || 0}
@@ -80,7 +80,7 @@ const AgriOfficerKPIDashboard = () => {
                         colorClass="bg-green-50 text-green-700"
                     />
                 </div>
-                <div className="stagger-4">
+                <div>
                     <KPICard
                         title="Awaiting Payment"
                         value={kpis.awaiting_payment}
@@ -92,7 +92,7 @@ const AgriOfficerKPIDashboard = () => {
             </div>
 
             {/* Main Visual Data Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 view-enter">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Density Tracking - Spans 2 cols on Large */}
                 <div className="xl:col-span-2 bg-white border border-stone-200 p-6 md:p-8 rounded-xl shadow-xs flex flex-col">
                     <div className="mb-8 border-l-4 border-green-700 pl-6">

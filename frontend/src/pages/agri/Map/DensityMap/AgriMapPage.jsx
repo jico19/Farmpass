@@ -7,6 +7,7 @@ import useMapFilters from './useMapFilters';
 import useMapInsights from './useMapInsights';
 import MapToolbar from './MapToolbar';
 import CensusStatusPanel from './CensusStatusPanel';
+import AnimatedSheet from '../../../../components/motion/AnimatedSheet';
 
 /** Map-first census workspace with a responsive details inspector. */
 const AgriMapPage = () => {
@@ -14,17 +15,19 @@ const AgriMapPage = () => {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [wideScreen, setWideScreen] = useState(() => window.matchMedia('(min-width: 1280px)').matches);
-    const detailsRef = useRef(null);
+    const [tabletScreen, setTabletScreen] = useState(() => window.matchMedia('(min-width: 768px)').matches);
     useEffect(() => {
         const media = window.matchMedia('(min-width: 1280px)');
+        const tablet = window.matchMedia('(min-width: 768px)');
         const update = () => setWideScreen(media.matches);
+        const updateTablet = () => setTabletScreen(tablet.matches);
         media.addEventListener('change', update);
-        return () => media.removeEventListener('change', update);
+        tablet.addEventListener('change', updateTablet);
+        return () => {
+            media.removeEventListener('change', update);
+            tablet.removeEventListener('change', updateTablet);
+        };
     }, []);
-    useEffect(() => {
-        if (!wideScreen && detailsOpen) detailsRef.current?.showModal();
-        else detailsRef.current?.close();
-    }, [wideScreen, detailsOpen]);
 
     const { data: map, isError: mapError } = useGetMaps();
     const { data: periodMetadata } = useGetHogSurveyPeriods();
@@ -158,17 +161,20 @@ const AgriMapPage = () => {
                         unavailableMessage={unavailableMessage}
                     />
                 </div>
-                {wideScreen ? <aside aria-label="Census details" className="min-w-0 overflow-y-auto rounded-xl border border-stone-200 bg-white xl:h-[max(480px,calc(100dvh-260px))]">{details}</aside> : (
-                    <dialog ref={detailsRef} onClose={() => setDetailsOpen(false)}
-                        aria-label={filters.selectedBarangay ? `${filters.selectedBarangay} details` : 'Sariaya overview'}
-                        className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[85dvh] w-full max-w-none overflow-auto rounded-t-xl border border-stone-200 bg-white p-0 text-stone-800 backdrop:bg-stone-900/40 md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[380px] md:rounded-none">
+                {wideScreen && <aside aria-label="Census details" className="min-w-0 overflow-y-auto rounded-xl border border-stone-200 bg-white xl:h-[max(480px,calc(100dvh-260px))]">{details}</aside>}
+                <AnimatedSheet open={!wideScreen && detailsOpen} side={tabletScreen ? 'right' : 'bottom'} onDismiss={() => setDetailsOpen(false)}>
+                    <div aria-label={filters.selectedBarangay ? `${filters.selectedBarangay} details` : 'Sariaya overview'}
+                        className="fixed inset-0 z-[2000] flex items-end justify-end bg-stone-900/40" onClick={event => { if (event.target === event.currentTarget) setDetailsOpen(false); }}>
+                    <section
+                        className="max-h-[85dvh] w-full overflow-auto rounded-t-xl border border-stone-200 bg-white text-stone-800 md:h-full md:max-h-none md:w-[380px] md:rounded-none">
                         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white px-4 py-2">
                             <span className="text-sm font-semibold">Map details</span>
                             <button type="button" autoFocus onClick={() => setDetailsOpen(false)} aria-label="Close details" className="flex size-11 items-center justify-center rounded-lg hover:bg-stone-100"><X size={20} /></button>
                         </div>
                         {details}
-                    </dialog>
-                )}
+                    </section>
+                    </div>
+                </AnimatedSheet>
             </div>
             
             {/* Survey CSV Upload Modal */}

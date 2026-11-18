@@ -1,5 +1,5 @@
 import { X, ShieldCheck, Lock, Scale, CheckCircle2, FileText } from "lucide-react";
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 
 /**
  * Terms and Privacy Agreement Modal
@@ -10,7 +10,7 @@ function TermsPrivacyModal({ isOpen, onClose, onAccept }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs">
             <div className="bg-white border border-stone-200 rounded-xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="border-b border-stone-200 px-6 py-4 bg-stone-50/50 flex items-start justify-between gap-4">
@@ -138,4 +138,4 @@ function TermsPrivacyModal({ isOpen, onClose, onAccept }) {
     );
 }
 
-export default withModalMotion(TermsPrivacyModal);
+export default withAnimatedDialog(TermsPrivacyModal);

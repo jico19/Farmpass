@@ -6,7 +6,7 @@ import { api } from '../../../lib/api';
 import { useApplicationDetail } from '../../../hooks/useApplications';
 import { toast } from 'sonner';
 import ConfirmationModal from '../../../components/ui/ConfirmationModal';
-import MotionPresence from '../../../components/ui/MotionPresence';
+import AnimatedDialog from '../../../components/motion/AnimatedDialog';
 import PaymentCountdownTimer from '../../../components/ui/PaymentCountdownTimer';
 
 // Timer component for QR Ph code expiration countdown
@@ -251,9 +251,9 @@ const PaymentCheckout = () => {
                 />
 
             {/* ── Realistic Interactive Sandbox Gateway Simulator Modal ───────────── */}
-            <MotionPresence open={showSandbox} onDismiss={() => { if (sandboxStep !== 3) setShowSandbox(false); }}>
+            <AnimatedDialog open={showSandbox} onDismiss={() => { if (sandboxStep !== 3) setShowSandbox(false); }}>
                 <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-md rounded-none shadow-2xl overflow-hidden border border-stone-300 animate-in fade-in zoom-in duration-200">
+                    <div className="bg-white w-full max-w-md rounded-none shadow-2xl overflow-hidden border border-stone-300">
 
                         {/* Modal Header — mimics authentic gateway header */}
                         <div className="bg-stone-900 px-6 py-4 text-white flex items-center justify-between">
@@ -518,7 +518,7 @@ const PaymentCheckout = () => {
 
                     </div>
                 </div>
-            </MotionPresence>
+            </AnimatedDialog>
             {/* ── End Realistic Sandbox Gateway Modal ─────────────────────────────── */}
             <div className="min-h-screen bg-stone-50/50 p-3 sm:p-6 lg:p-12">
                 <div className="max-w-4xl mx-auto space-y-6 sm:space-y-10">

@@ -233,7 +233,7 @@ const CreateApplication = () => {
                 {/* Form Content - Clean Canvas with Animated Step Transitions */}
                 <div className="pt-6 border-t border-stone-200">
                     <form onSubmit={handleSubmit(handleFormSubmit)}>
-                        <div key={step} className="view-enter">
+                        <div key={step}>
                             {step === 1 && (
                                 <FarmerInfo
                                     register={register}
@@ -304,7 +304,7 @@ const CreateApplication = () => {
 
                 {/* Help Notice */}
                 {step === 1 && (
-                    <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 flex gap-4 items-start view-enter">
+                    <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 flex gap-4 items-start">
                         <div className="bg-white p-2 border border-stone-200 rounded-lg text-green-700 shrink-0">
                             <ArrowRight size={16} />
                         </div>

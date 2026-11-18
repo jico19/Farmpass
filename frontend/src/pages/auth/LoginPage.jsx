@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
-import MotionPresence from '../../components/ui/MotionPresence';
+import AnimatedDialog from '../../components/motion/AnimatedDialog';
+import AnimatedEntrance from '../../components/motion/AnimatedEntrance';
 import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import {
@@ -124,7 +125,7 @@ const LoginPage = () => {
                 <div>
                     <Link
                         to="/"
-                        className="auth-page-enter flex items-center gap-3 mb-10 hover-only:hover:opacity-90 transition-opacity duration-150 ease-smooth motion-reduce:transition-none w-fit"
+                        className="flex items-center gap-3 mb-10 hover-only:hover:opacity-90 transition-opacity duration-150 ease-smooth motion-reduce:transition-none w-fit"
                         title="Return to FarmPass Landing Page"
                     >
                         <img
@@ -142,7 +143,7 @@ const LoginPage = () => {
                         </div>
                     </Link>
 
-                    <div className="auth-page-enter space-y-4 max-w-sm">
+                    <AnimatedEntrance className="space-y-4 max-w-sm">
                         <h2 className="text-3xl font-black text-white leading-tight uppercase tracking-tight">
                             Livestock Transport <br />
                             Permit Portal
@@ -150,7 +151,7 @@ const LoginPage = () => {
                         <p className="text-green-50 text-sm font-normal leading-relaxed">
                             Sign in to submit hog shipping permits, track OPV veterinary reviews, and manage municipal checkpoint inspections.
                         </p>
-                    </div>
+                    </AnimatedEntrance>
 
                     {/* Operational Details */}
                     <div className="mt-12 space-y-3 max-w-sm text-xs">
@@ -197,7 +198,7 @@ const LoginPage = () => {
                         <span>Back to Landing Page</span>
                     </Link>
 
-                    <div className="auth-page-enter auth-form-card w-full bg-white border border-stone-200 rounded-xl shadow-xs p-6 sm:p-8 md:p-10 space-y-6">
+                    <AnimatedEntrance className="auth-form-card w-full bg-white border border-stone-200 rounded-xl shadow-xs p-6 sm:p-8 md:p-10 space-y-6">
 
                         {/* Mobile Header Branding (Shown on mobile screens only) */}
                         <div className="flex md:hidden items-center justify-between pb-4 border-b border-stone-200">
@@ -228,7 +229,7 @@ const LoginPage = () => {
 
                     {/* Throttle Alert Banner */}
                     {throttleWait > 0 && (
-                        <div className="auth-step-enter bg-amber-50 border-l-4 border-amber-500 border border-stone-200 p-3.5 flex items-start gap-3 rounded-lg">
+                        <div className="bg-amber-50 border-l-4 border-amber-500 border border-stone-200 p-3.5 flex items-start gap-3 rounded-lg">
                             <AlertCircle className="text-amber-500 mt-0.5 flex-shrink-0" size={16} />
                             <div className="text-xs text-stone-800 space-y-0.5">
                                 <p className="font-bold text-amber-700 uppercase tracking-wide text-[11px]">Sign In Temporarily Paused</p>
@@ -242,7 +243,7 @@ const LoginPage = () => {
 
                     {/* Global Error Banner */}
                     {apiError && throttleWait <= 0 && (
-                        <div className="auth-step-enter bg-red-50 border-l-4 border-red-600 border border-stone-200 p-3.5 flex items-start gap-3 rounded-lg">
+                        <div className="bg-red-50 border-l-4 border-red-600 border border-stone-200 p-3.5 flex items-start gap-3 rounded-lg">
                             <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={16} />
                             <div className="flex-1 text-xs">
                                 <p className="font-bold text-red-700 uppercase tracking-wide text-[11px] mb-0.5">Authentication Failed</p>
@@ -393,10 +394,10 @@ const LoginPage = () => {
                         </Link>
                     </div>
 
-                </div>
+                </AnimatedEntrance>
                 </div>
             </div>
-            <MotionPresence open={showReset} onDismiss={() => { if (!isSendingReset) setShowReset(false); }}>
+            <AnimatedDialog open={showReset} onDismiss={() => { if (!isSendingReset) setShowReset(false); }}>
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4">
                     <form onSubmit={requestPasswordReset} className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-xl">
                         <div className="mb-5 flex items-start justify-between gap-4">
@@ -419,7 +420,7 @@ const LoginPage = () => {
                         </button>
                     </form>
                 </div>
-            </MotionPresence>
+            </AnimatedDialog>
         </div>
     );
 };

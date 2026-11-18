@@ -1,6 +1,6 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { ScanLine, QrCode, MessageSquare, MapPin } from "lucide-react";
 import FeaturesBg from '../../../../assets/home-icons/feature-bg.jpg';
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const FEATURES = [
   {
@@ -38,9 +38,6 @@ const FEATURES = [
 ];
 
 export default function Features() {
-  const headerRef = useScrollReveal({ threshold: 0.2 });
-  const imgRef    = useScrollReveal({ threshold: 0.15 });
-  const gridRef = useScrollReveal({ selector: ".features-card" });
 
   return (
     <section className="bg-brand-bg py-20 relative overflow-hidden">
@@ -50,7 +47,7 @@ export default function Features() {
         <div className="flex items-center gap-12 mb-14 max-[900px]:flex-col max-[900px]:gap-8 max-[560px]:mb-10">
 
           {/* Left Description */}
-          <div ref={headerRef} className="reveal-block flex-1 min-w-0 max-[900px]:text-center">
+          <AnimatedReveal className="flex-1 min-w-0 max-[900px]:text-center">
             <h2 className="font-archivo text-[clamp(28px,3.5vw,40px)] text-brand-primary leading-[1.12] mb-4 tracking-[-0.02em]">
               Regulatory Tools Built for Compliance
             </h2>
@@ -58,22 +55,22 @@ export default function Features() {
               Our platform connects municipal agriculture staff, barangay inspectors, and livestock handlers
               through verifiable digital transport credentials.
             </p>
-          </div>
+          </AnimatedReveal>
 
           {/* Right Image */}
-          <div ref={imgRef} className="reveal-block flex-1 min-w-0 max-[900px]:w-full">
+          <AnimatedReveal className="flex-1 min-w-0 max-[900px]:w-full">
             <img
               src={FeaturesBg}
               alt="Farmer using digital portal"
               className="w-full h-[280px] object-cover object-center border border-stone-200 rounded-lg max-[900px]:h-[240px] max-[560px]:h-[190px]"
             />
-          </div>
+          </AnimatedReveal>
         </div>
 
         {/* 2x2 Feature Grid */}
-        <div ref={gridRef} className="grid grid-cols-2 gap-6 max-[768px]:grid-cols-1 max-[560px]:gap-4">
+        <div className="grid grid-cols-2 gap-6 max-[768px]:grid-cols-1 max-[560px]:gap-4">
           {FEATURES.map(({ icon: Icon, iconColor, title, desc, bg, border }, i) => (
-            <div key={i} className="landing-card features-card group bg-white p-6 sm:p-7 border border-stone-200 rounded-lg relative overflow-hidden cursor-default">
+            <AnimatedReveal key={i} delay={Math.min(i * 0.02, 0.06)} className="landing-card features-card group bg-white p-6 sm:p-7 border border-stone-200 rounded-lg relative overflow-hidden cursor-default">
 
               {/* Icon Container */}
               <div className={`landing-card-icon w-12 h-12 ${bg} border ${border} rounded-md flex items-center justify-center mb-4`}>
@@ -82,7 +79,7 @@ export default function Features() {
 
               <h3 className="font-archivo text-[16px] text-stone-900 mb-2 tracking-[-0.01em]">{title}</h3>
               <p className="font-jakarta text-[14px] text-stone-600 leading-[1.65]">{desc}</p>
-            </div>
+            </AnimatedReveal>
           ))}
         </div>
 

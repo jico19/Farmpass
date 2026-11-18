@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withModalMotion } from '../lib/modalMotion';
+import { withAnimatedDialog } from '../lib/withAnimatedDialog';
 import { Upload, X, CheckCircle2, AlertCircle, FileText, Loader2, Download } from 'lucide-react';
 import { useUploadHogSurvey } from '../hooks/useMaps';
 import { downloadBlob } from '../lib/utils';
@@ -204,4 +204,4 @@ const HogSurveyUploadModal = ({ isOpen, onClose }) => {
     );
 };
 
-export default withModalMotion(HogSurveyUploadModal);
+export default withAnimatedDialog(HogSurveyUploadModal);

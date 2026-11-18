@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import { CheckCircle2, AlertCircle, Clock, FileCheck2, ArrowRight } from 'lucide-react';
+import AnimatedEntrance from '../../../components/motion/AnimatedEntrance';
 
 const MAX_RETRIES = 10;
 const POLL_INTERVAL = 3000;
@@ -78,7 +79,7 @@ const PaymentSuccess = () => {
                 )}
 
                 {status === 'success' && (
-                    <div className="flex flex-col animate-in fade-in zoom-in duration-500">
+                    <AnimatedEntrance className="flex flex-col">
                         {/* Receipt Header */}
                         <div className="bg-green-700 p-5 sm:p-8 text-center space-y-3 sm:space-y-4">
                             <div className="inline-flex p-2.5 sm:p-3 bg-white/20 backdrop-blur-sm rounded-full text-white ring-4 ring-white/10">
@@ -154,7 +155,7 @@ const PaymentSuccess = () => {
                             <FileCheck2 size={16} className="text-stone-800" />
                             <span className="text-[10px] font-black text-stone-800 uppercase tracking-[0.3em]">FarmPass</span>
                         </div>
-                    </div>
+                    </AnimatedEntrance>
                 )}
 
                 {status === 'error' && (

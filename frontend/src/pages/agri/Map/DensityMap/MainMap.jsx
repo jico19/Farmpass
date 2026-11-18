@@ -2,7 +2,10 @@ import { forwardRef, useEffect, useId, useState } from 'react';
 import { Map, MapControls, useMap } from '../../../../components/ui/map';
 import MapDataHandler from './MapDataHandler';
 import { RotateCcw, ChevronUp, Layers } from 'lucide-react';
-import './map-workspace.css';
+import { m as M } from 'motion/react';
+import AnimatedPopover from '../../../../components/motion/AnimatedPopover';
+import { useInstantMotion } from '../../../../lib/motionPolicy';
+import { motionTransition } from '../../../../lib/motionPresets';
 
 const CENTER = [121.5239, 13.9630];
 const LEGENDS = {
@@ -38,7 +41,7 @@ const MainMap = forwardRef(function MainMap({
     unavailableMessage, ...props
 }, ref) {
     const [legendOpen, setLegendOpen] = useState(() => window.matchMedia('(min-width: 768px)').matches);
-    const [instantLegend, setInstantLegend] = useState(false);
+    const instant = useInstantMotion();
     const legendId = useId();
     return (
         <div className="relative flex min-h-0 flex-1 flex-col">
@@ -49,9 +52,9 @@ const MainMap = forwardRef(function MainMap({
                     <MapDataHandler {...props} unavailable={Boolean(unavailableMessage)} activeMapLayer={activeMapLayer} activeFilters={activeFilters} setSelectedBarangay={setSelectedBarangay} />
                 </Map>
                 {unavailableMessage && <div role="status" className="absolute inset-x-3 top-16 rounded-lg border border-stone-200 bg-white p-3 text-sm text-stone-700 shadow-sm">{unavailableMessage}</div>}
-                <div className="absolute right-3 bottom-9 z-10 w-[230px] max-w-[calc(100%-80px)]" data-instant={instantLegend}>
-                    <div id={legendId} inert={!legendOpen} aria-hidden={!legendOpen}
-                        data-open={legendOpen} className="map-legend-panel absolute right-0 bottom-full mb-2 w-full rounded-xl border border-stone-200 bg-white p-2 shadow-sm">
+                <div className="absolute right-3 bottom-9 z-10 w-[230px] max-w-[calc(100%-80px)]">
+                    <AnimatedPopover id={legendId} open={legendOpen}
+                        className="absolute right-0 bottom-full mb-2 w-full rounded-xl border border-stone-200 bg-white p-2 shadow-sm">
                         <p className="border-b border-stone-100 px-2 py-2 text-xs font-medium text-stone-600">
                             {activeMapLayer === 'density' ? 'Recorded pigs · select levels' : activeMapLayer === 'transport' ? 'Pigs transported this period' : 'Change in recorded pigs'}
                         </p>
@@ -63,14 +66,13 @@ const MainMap = forwardRef(function MainMap({
                                 : <div key={index} className="flex min-h-11 items-center gap-2 px-2 text-xs">{contents}</div>;
                         })}
                         </div>
-                    </div>
-                    <button type="button" aria-controls={legendId} aria-expanded={legendOpen} onClick={event => {
-                        setInstantLegend(event.detail === 0);
+                    </AnimatedPopover>
+                    <button type="button" aria-controls={legendId} aria-expanded={legendOpen} onClick={() => {
                         setLegendOpen(open => !open);
                     }} className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-left text-xs font-semibold text-stone-700 shadow-sm transition-[background-color,border-color] duration-150 ease-[var(--ease-smooth)] hover:bg-stone-50 motion-reduce:transition-none motion-safe:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-green-700">
                         <Layers size={16} className="shrink-0 text-green-700" />
                         <span className="flex-1">{activeMapLayer === 'density' ? 'Population level' : activeMapLayer === 'transport' ? 'Permit outflows' : 'Population change'}</span>
-                        <ChevronUp size={16} className="map-legend-chevron shrink-0" data-open={legendOpen} />
+                        <M.span className="flex shrink-0" initial={false} animate={{ rotate: legendOpen ? 180 : 0 }} transition={motionTransition('popover', legendOpen, instant)}><ChevronUp size={16} /></M.span>
                     </button>
                 </div>
                 <button type="button" onClick={() => {

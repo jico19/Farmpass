@@ -1,11 +1,10 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { useNavigate } from "react-router-dom";
 import LandingButton from '../../../../components/ui/LandingButton';
 import CtaBg from '../../../../assets/home-icons/CTA-bg.png';
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 export default function CTA() {
   const navigate = useNavigate();
-  const ctaRef = useScrollReveal({ threshold: 0.2 });
 
   return (
     <section className="relative overflow-hidden pt-24 pb-20">
@@ -17,8 +16,8 @@ export default function CTA() {
       <div className="absolute inset-0 pointer-events-none bg-[#0a2a1a]/90" />
 
       {/* Content */}
-      <div ref={ctaRef}
-        className="reveal-block relative z-[1] max-w-[680px] mx-auto px-6 text-center">
+      <AnimatedReveal
+        className="relative z-[1] max-w-[680px] mx-auto px-6 text-center">
 
         <h2 className="font-archivo text-[clamp(32px,5vw,52px)] text-white leading-[1.1] mb-5 tracking-[-0.02em]">
           Ready to Apply for Your Transport Permit?
@@ -51,7 +50,7 @@ export default function CTA() {
             Already registered? Sign in
           </button>
         </div>
-      </div>
+      </AnimatedReveal>
     </section>
   );
 }

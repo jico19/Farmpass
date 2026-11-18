@@ -1,5 +1,5 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { Download, FileText } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const DOWNLOADS = [
   { label: "Sample Ownership Certificate", file: "#" },
@@ -8,11 +8,10 @@ const DOWNLOADS = [
 ];
 
 export default function Downloads() {
-  const sectionRef = useScrollReveal({ threshold: 0.2 });
 
   return (
     <section className="bg-white py-16 border-b border-stone-200">
-      <div ref={sectionRef} className="reveal-block max-w-[54rem] mx-auto px-8 max-[640px]:px-5">
+      <AnimatedReveal className="max-w-[54rem] mx-auto px-8 max-[640px]:px-5">
 
         {/* Header */}
         <div className="flex items-center gap-3 pb-3 border-b border-stone-200 mb-2">
@@ -41,7 +40,7 @@ export default function Downloads() {
             </div>
           ))}
         </div>
-      </div>
+      </AnimatedReveal>
     </section>
   );
 }

@@ -1,6 +1,6 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { Timer, Clock, Activity, ShieldAlert, FileCheck2, ScrollText } from "lucide-react";
 import BenefitsBg from '../../../../assets/home-icons/benefits-bg.jpg';
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const BENEFITS = [
   {
@@ -48,10 +48,9 @@ const BENEFITS = [
 ];
 
 function BenefitCard({ icon: Icon, color, title, desc, bg }) {
-  const cardRef = useScrollReveal({ threshold: 0.1 });
 
   return (
-    <div ref={cardRef}
+    <AnimatedReveal
       className="landing-card landing-card-dark benefits-card bg-white/5 border border-white/10 p-5 rounded-lg cursor-default">
 
       {/* Icon */}
@@ -61,13 +60,11 @@ function BenefitCard({ icon: Icon, color, title, desc, bg }) {
 
       <h3 className="font-archivo text-[15px] text-white mb-1.5 tracking-tight">{title}</h3>
       <p className="font-jakarta text-[13px] text-white/70 leading-[1.6]">{desc}</p>
-    </div>
+    </AnimatedReveal>
   );
 }
 
 export default function Benefits() {
-  const headerRef = useScrollReveal({ threshold: 0.2 });
-  const imgRef    = useScrollReveal({ threshold: 0.15 });
 
   return (
     <section className="bg-brand-primary relative py-20 overflow-hidden">
@@ -77,7 +74,7 @@ export default function Benefits() {
         <div className="flex gap-10 items-center max-[960px]:flex-col">
 
           {/* Left — image card, hidden on narrow screens */}
-          <div ref={imgRef} className="reveal-block w-[380px] shrink-0 max-[960px]:hidden">
+          <AnimatedReveal className="w-[380px] shrink-0 max-[960px]:hidden">
             <div className="border border-white/20 bg-white/5 p-2 rounded-xl">
               <img
                 src={BenefitsBg}
@@ -89,20 +86,20 @@ export default function Benefits() {
                 <p className="font-jakarta text-[12px] text-white/60">Digital permitting for safe, verifiable transport.</p>
               </div>
             </div>
-          </div>
+          </AnimatedReveal>
 
           {/* Right */}
           <div className="flex-1 min-w-0">
 
             {/* Header */}
-            <div ref={headerRef} className="reveal-block mb-8 max-[960px]:text-center">
+            <AnimatedReveal className="mb-8 max-[960px]:text-center">
               <h2 className="font-archivo text-[clamp(28px,3.5vw,40px)] text-white leading-[1.12] mb-3 tracking-[-0.02em]">
                 Benefits for Farmers & Inspectors
               </h2>
               <p className="font-jakarta text-[15px] text-white/70 leading-[1.7] max-w-[520px] max-[960px]:mx-auto">
                 Built specifically for the Municipality of Sariaya to ensure regulatory compliance without administrative delays.
               </p>
-            </div>
+            </AnimatedReveal>
 
             {/* Grid */}
             <div className="grid grid-cols-2 gap-3.5 max-[560px]:grid-cols-1">

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '../../../lib/api';
 import { getErrorMessage } from '../../../lib/utils';
+import AnimatedDialog from '../../../components/motion/AnimatedDialog';
 
 function ConfirmationDialog({ applicationId, onClose }) {
     const dialog = useRef(null);
@@ -25,7 +26,9 @@ function ConfirmationDialog({ applicationId, onClose }) {
         },
     });
     useEffect(() => {
-        dialog.current.showModal();
+        const element = dialog.current;
+        element.showModal();
+        return () => element.close();
     }, []);
 
     return (
@@ -95,7 +98,9 @@ export default function MAOCertificatePanel({ application }) {
                         className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50">Generate MAO Certificate</button>
                 </>
             )}
-            {isOpen && <ConfirmationDialog applicationId={application.id} onClose={() => setIsOpen(false)} />}
+            <AnimatedDialog open={isOpen}>
+                <ConfirmationDialog applicationId={application.id} onClose={() => setIsOpen(false)} />
+            </AnimatedDialog>
         </section>
     );
 }

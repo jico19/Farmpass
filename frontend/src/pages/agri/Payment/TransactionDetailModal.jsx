@@ -1,4 +1,4 @@
-import { withModalMotion } from '../../../lib/modalMotion';
+import { withAnimatedDialog } from '../../../lib/withAnimatedDialog';
 import {
   X,
   CheckCircle2,
@@ -70,7 +70,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white border border-stone-200 rounded-xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-xl overflow-hidden modal-enter">
+      <div className="bg-white border border-stone-200 rounded-xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-xl overflow-hidden">
         {/* Dignified Government Modal Header */}
         <div className="bg-stone-50 border-b border-stone-200 px-6 py-4 flex items-center justify-between">
           <div className="space-y-0.5">
@@ -252,4 +252,4 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
   );
 };
 
-export default withModalMotion(TransactionDetailModal, { when: (props) => props.isOpen && Boolean(props.transaction) });
+export default withAnimatedDialog(TransactionDetailModal, { when: (props) => props.isOpen && Boolean(props.transaction) });

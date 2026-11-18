@@ -1,5 +1,5 @@
-import useScrollReveal from "../../../../hooks/useScrollReveal";
 import AgriLogo from "../../../../assets/sariaya-agri-logo.jpg";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const WHY_FEATURES = [
   "Enabling 24/7 online application submission from anywhere",
@@ -48,8 +48,6 @@ function CheckList({ items }) {
 }
 
 export default function AboutContent() {
-  const missionRef = useScrollReveal({ threshold: 0.1 });
-  const officeRef = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section className="bg-brand-bg py-16 relative overflow-hidden max-[640px]:py-12">
@@ -57,7 +55,7 @@ export default function AboutContent() {
         <div className="grid grid-cols-2 gap-12 items-start max-[896px]:grid-cols-1">
 
           {/* LEFT — Mission */}
-          <div ref={missionRef} className="reveal-block">
+          <AnimatedReveal>
             <h2 className="font-archivo text-[clamp(1.25rem,2vw,1.8rem)] text-brand-primary tracking-[-0.02em] leading-[1.2] pb-3 border-b border-stone-200 mb-4">
               Our Mission
             </h2>
@@ -78,10 +76,10 @@ export default function AboutContent() {
               and manual verification calls. FarmPass addresses these challenges by:
             </p>
             <CheckList items={WHY_FEATURES} />
-          </div>
+          </AnimatedReveal>
 
           {/* RIGHT — Office + SDGs */}
-          <div ref={officeRef} className="reveal-block">
+          <AnimatedReveal>
             <div className="flex items-center gap-3 pb-3 border-b border-stone-200 mb-4">
               <img src={AgriLogo} alt="" className="w-8 h-8 rounded-full object-cover border border-stone-200" />
               <h2 className="font-archivo text-[clamp(1.25rem,2vw,1.8rem)] text-brand-primary tracking-[-0.02em] leading-[1.2]">
@@ -113,7 +111,7 @@ export default function AboutContent() {
                 </div>
               ))}
             </div>
-          </div>
+          </AnimatedReveal>
 
         </div>
       </div>

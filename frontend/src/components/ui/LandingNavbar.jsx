@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import LandingButton from './LandingButton';
 import AgriLogo from '../../assets/sariaya-agri-logo.jpg';
+import AnimatedPopover from '../motion/AnimatedPopover';
 
 const NAV_LINKS = [
   { key: "home", label: "Home" },
@@ -145,13 +146,12 @@ export default function LandingNavbar({ activePage }) {
       </nav>
 
       {/* MOBILE DROPDOWN */}
-      <div
+      <AnimatedPopover
         ref={menuRef}
         id="landing-mobile-menu"
-        data-open={menuOpen}
-        inert={!menuOpen}
-        aria-hidden={!menuOpen}
-        className="landing-menu fixed top-[68px] left-0 right-0 bg-white border-b border-stone-200 flex-col gap-[2px] z-[99] overflow-y-auto max-h-[calc(100dvh-68px)] px-5 pt-3 pb-5 hidden max-[910px]:flex motion-reduce:transition-none"
+        open={menuOpen}
+        origin="top left"
+        className="fixed top-[68px] left-0 right-0 bg-white border-b border-stone-200 flex-col gap-[2px] z-[99] overflow-y-auto max-h-[calc(100dvh-68px)] px-5 pt-3 pb-5 hidden max-[910px]:flex"
       >
         {NAV_LINKS.map(({ key, label }) => (
           <button
@@ -190,7 +190,7 @@ export default function LandingNavbar({ activePage }) {
             }}
           />
         </div>
-      </div>
+      </AnimatedPopover>
     </>
   );
 }

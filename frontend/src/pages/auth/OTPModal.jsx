@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Smartphone, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 
 /**
  * OTP Verification Modal Component
@@ -70,8 +70,8 @@ const OTPModal = ({ isOpen, onClose, phone, onVerify, onResend, isVerifying, isR
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-            <div className="bg-white w-full max-w-sm border border-stone-200 rounded-xl shadow-xl overflow-hidden relative animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs">
+            <div className="bg-white w-full max-w-sm border border-stone-200 rounded-xl shadow-xl overflow-hidden relative">
                 {/* Close Button */}
                 <button
                     onClick={onClose}
@@ -161,4 +161,4 @@ const OTPModal = ({ isOpen, onClose, phone, onVerify, onResend, isVerifying, isR
     );
 };
 
-export default withModalMotion(OTPModal);
+export default withAnimatedDialog(OTPModal);

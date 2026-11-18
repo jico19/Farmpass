@@ -1,5 +1,5 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { ListOrdered } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const STEPS = [
   { n: "1", title: "Create Account & Login",
@@ -21,11 +21,10 @@ const STEPS = [
 ];
 
 function GuideStep({ step }) {
-  const ref = useScrollReveal();
 
   return (
-    <div ref={ref}
-      className="reveal-block landing-guide-step guide-step flex gap-4 items-start py-4 border-b border-stone-200 last:border-b-0">
+    <AnimatedReveal
+      className="landing-guide-step guide-step flex gap-4 items-start py-4 border-b border-stone-200 last:border-b-0">
 
       <div className="landing-card-icon w-7 h-7 bg-green-700 text-white font-archivo text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 rounded-md">
         {step.n}
@@ -35,24 +34,23 @@ function GuideStep({ step }) {
         <h3 className="font-archivo text-sm sm:text-base font-semibold text-stone-900 mb-1 tracking-tight">{step.title}</h3>
         <p className="font-jakarta text-xs sm:text-sm text-stone-600 leading-relaxed">{step.desc}</p>
       </div>
-    </div>
+    </AnimatedReveal>
   );
 }
 
 export default function AppGuide() {
-  const headerRef = useScrollReveal({ threshold: 0.2 });
 
   return (
     <section className="bg-stone-50 py-16 relative border-b border-stone-200 max-[640px]:py-12">
       <div className="max-w-[54rem] mx-auto px-8 max-[640px]:px-5">
 
         {/* Header */}
-        <div ref={headerRef} className="reveal-block flex items-center gap-3 pb-3 border-b border-stone-200 mb-2">
+        <AnimatedReveal className="flex items-center gap-3 pb-3 border-b border-stone-200 mb-2">
           <div className="w-10 h-10 bg-sky-50 border border-sky-200 rounded-md flex items-center justify-center shrink-0">
             <ListOrdered className="w-5 h-5 text-sky-700" strokeWidth={2} />
           </div>
           <h2 className="font-archivo text-2xl text-stone-900 font-bold tracking-tight">Step-by-Step Application Guide</h2>
-        </div>
+        </AnimatedReveal>
         <p className="font-jakarta text-sm text-stone-600 leading-relaxed mb-6">
           Follow these steps to successfully apply for your livestock transport permit
         </p>
