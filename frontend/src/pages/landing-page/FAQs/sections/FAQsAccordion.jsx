@@ -1,5 +1,6 @@
-import { useState, useRef, useLayoutEffect, useId } from "react";
-import useScrollReveal from '../../../../hooks/useScrollReveal';
+import { useState, useId } from "react";
+import AnimatedCollapse from '../../../../components/motion/AnimatedCollapse';
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const CATEGORIES = [
   {
@@ -100,23 +101,6 @@ const CATEGORIES = [
 
 function AccordionItem({ item, isOpen, onToggle }) {
   const id = useId();
-  const panelRef = useRef(null);
-  const contentRef = useRef(null);
-  const wasOpen = useRef(false);
-
-  useLayoutEffect(() => {
-    const panel = panelRef.current;
-    const content = contentRef.current;
-    const instant = document.documentElement.dataset.landingInput === "keyboard";
-    panel.dataset.instant = String(instant);
-    panel.hidden = !isOpen && (!wasOpen.current || instant);
-    wasOpen.current = isOpen;
-    const measure = () => panel.style.setProperty("--answer-height", `${content.scrollHeight}px`);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, [isOpen]);
 
   return (
     <div className={`bg-white border rounded-lg transition-[border-color] duration-150 ease-smooth motion-reduce:transition-none overflow-hidden
@@ -136,29 +120,24 @@ function AccordionItem({ item, isOpen, onToggle }) {
       </button>
 
       {/* Animated answer */}
-      <div ref={panelRef} id={`${id}-answer`} aria-labelledby={`${id}-trigger`}
-        className="landing-faq-panel motion-reduce:animate-none" data-open={isOpen} inert={!isOpen} aria-hidden={!isOpen}
-        onAnimationEnd={(event) => {
-          if (event.target === event.currentTarget && !isOpen) event.currentTarget.hidden = true;
-        }}>
-        <div ref={contentRef} className="overflow-hidden">
+      <AnimatedCollapse open={isOpen} id={`${id}-answer`} aria-labelledby={`${id}-trigger`}>
+        <div className="overflow-hidden">
           <div className="px-5 pb-5 pt-1 border-t border-stone-100">
             {item.a.split("\n").filter(l => l.trim()).map((line, i) => (
               <p key={i} className="font-jakarta text-xs sm:text-sm text-stone-600 leading-relaxed mt-2 mb-0">{line}</p>
             ))}
           </div>
         </div>
-      </div>
+      </AnimatedCollapse>
     </div>
   );
 }
 
 function Category({ cat }) {
   const [openIndex, setOpenIndex] = useState(null);
-  const ref = useScrollReveal({ threshold: 0.1 });
 
   return (
-    <div ref={ref} className="reveal-block">
+    <AnimatedReveal>
       <h2 className="font-archivo text-xl sm:text-2xl font-bold text-stone-900 tracking-tight mb-3 pb-2 border-b border-stone-200 flex items-center justify-between">
         <span>{cat.title}</span>
         <span className="text-xs font-jakarta font-normal text-stone-500">{cat.items.length} questions</span>
@@ -169,7 +148,7 @@ function Category({ cat }) {
             onToggle={() => setOpenIndex(openIndex === i ? null : i)} />
         ))}
       </div>
-    </div>
+    </AnimatedReveal>
   );
 }
 

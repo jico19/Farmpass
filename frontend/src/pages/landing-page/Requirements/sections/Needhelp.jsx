@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom';
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { HelpCircle } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 export default function NeedHelp() {
-  const ref = useScrollReveal({ threshold: 0.2 });
 
   return (
     <section className="bg-stone-50 py-16 max-[640px]:py-12 px-8 max-[640px]:px-5">
-      <div ref={ref}
-        className="landing-card reveal-block max-w-[54rem] mx-auto bg-white border border-stone-200 rounded-lg p-8">
+      <AnimatedReveal
+        className="landing-card max-w-[54rem] mx-auto bg-white border border-stone-200 rounded-lg p-8">
 
         <div className="flex items-center gap-3 mb-3">
           <div className="landing-card-icon w-10 h-10 bg-amber-50 border border-amber-200 rounded-md flex items-center justify-center shrink-0">
@@ -34,7 +33,7 @@ export default function NeedHelp() {
             </li>
           ))}
         </ul>
-      </div>
+      </AnimatedReveal>
     </section>
   );
 }

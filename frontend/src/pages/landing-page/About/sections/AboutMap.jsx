@@ -1,28 +1,26 @@
-import useScrollReveal from "../../../../hooks/useScrollReveal";
 import { MapPin } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const GMAPS_URL = "https://www.google.com/maps/place/New+Sariaya+Municipal+Hall/@13.9569516,121.5118002,1151m/data=!3m1!1e3!4m6!3m5!1s0x33bd4f001084db1b:0xb64703c8f579b191!8m2!3d13.9566288!4d121.5140318!16s%2Fg%2F11xd8mkr77?entry=ttu&g_ep=EgoyMDI2MDMwNC4xIKXMDSoASAFQAw%3D%3D";
 const EMBED_SRC = "https://www.google.com/maps/embed?pb=!4v1772712980735!6m8!1m7!1sCAoSHENJQUJJaEE0Z3VIc1hrRW4tN3ZhNUpIMm9mQ20.!2m2!1d13.95735761845487!2d121.5140318247651!3f324.87219963259867!4f-38.99672389730038!5f0.7820865974627469";
 
 export default function AboutMap() {
-  const headerRef  = useScrollReveal({ threshold: 0.2 });
-  const contentRef = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section className="bg-brand-bg py-16 relative overflow-hidden max-[640px]:py-12">
       <div className="max-w-[64rem] mx-auto px-8 max-[640px]:px-5">
 
         {/* Header */}
-        <div ref={headerRef} className="reveal-block text-center mb-8">
+        <AnimatedReveal className="text-center mb-8">
           <h2 className="font-archivo text-[clamp(1.6rem,3vw,2.4rem)] text-brand-primary tracking-[-0.02em] mb-2">Office Location</h2>
           <p className="font-jakarta text-[clamp(0.88rem,1.2vw,1rem)] text-stone-600 leading-[1.7]">
             Visit the Sariaya Municipal Agriculture Office for in-person document filing and account support
           </p>
-        </div>
+        </AnimatedReveal>
 
         {/* Map card */}
-        <div ref={contentRef}
-          className="reveal-block bg-white border border-stone-200 rounded-xl overflow-hidden box-border">
+        <AnimatedReveal
+          className="bg-white border border-stone-200 rounded-xl overflow-hidden box-border">
 
           {/* Iframe */}
           <div className="w-full h-[28rem] relative max-[640px]:h-[20rem]">
@@ -53,7 +51,7 @@ export default function AboutMap() {
               Open in Google Maps
             </a>
           </div>
-        </div>
+        </AnimatedReveal>
 
       </div>
     </section>

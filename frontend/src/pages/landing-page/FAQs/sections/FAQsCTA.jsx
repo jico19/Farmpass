@@ -1,8 +1,7 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { useNavigate } from "react-router-dom";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 export default function FAQsCTA() {
-  const ref      = useScrollReveal({ threshold: 0.2 });
   const navigate = useNavigate();
 
   const handleContact = () => {
@@ -11,8 +10,8 @@ export default function FAQsCTA() {
 
   return (
     <section className="bg-brand-bg px-8 pb-20 box-border max-[640px]:px-5 max-[640px]:pb-16">
-      <div ref={ref}
-        className="reveal-block relative max-w-[60rem] mx-auto bg-brand-primary px-8 py-12 text-center border border-white/10 rounded-xl box-border max-[640px]:px-6 max-[640px]:py-8">
+      <AnimatedReveal
+        className="relative max-w-[60rem] mx-auto bg-brand-primary px-8 py-12 text-center border border-white/10 rounded-xl box-border max-[640px]:px-6 max-[640px]:py-8">
 
         <div className="relative z-[1]">
           <h2 className="font-archivo text-[clamp(1.4rem,3vw,2rem)] text-white tracking-[-0.02em] mb-2">
@@ -29,7 +28,7 @@ export default function FAQsCTA() {
             Contact the Office
           </button>
         </div>
-      </div>
+      </AnimatedReveal>
     </section>
   );
 }

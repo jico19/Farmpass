@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import LandingButton from '../../../../components/ui/LandingButton';
 import MockupImage from '../../../../assets/home-icons/mock-up.png';
+import AnimatedEntrance from '../../../../components/motion/AnimatedEntrance';
 
 export default function Hero() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function Hero() {
                       max-[900px]:grid-cols-1 max-[900px]:px-6 max-[900px]:pt-14 max-[900px]:pb-20 max-[900px]:text-center">
 
         {/* LEFT: Content */}
-        <div className="landing-entrance flex flex-col">
+        <AnimatedEntrance className="flex flex-col">
 
           {/* Title */}
           <h1 className="font-archivo text-[clamp(36px,4.5vw,56px)] leading-[1.08] text-white mb-6 tracking-[-0.02em]">
@@ -58,15 +59,15 @@ export default function Hero() {
               Official livestock regulatory portal · Sariaya Municipal Agriculture Office
             </p>
           </div>
-        </div>
+        </AnimatedEntrance>
 
         {/* RIGHT: Visual Mockup */}
-        <div className="landing-visual relative flex items-center justify-center max-[900px]:mt-2">
+        <AnimatedEntrance className="relative flex items-center justify-center max-[900px]:mt-2">
           {/* Mockup frame */}
           <div className="landing-preview relative z-[1] border border-white/20 bg-black/20 p-2 rounded-lg overflow-hidden">
             <img src={MockupImage} alt="FarmPass application preview" className="w-full max-w-[460px] block rounded-md" />
           </div>
-        </div>
+        </AnimatedEntrance>
       </div>
 
       {/* Grounding divider */}

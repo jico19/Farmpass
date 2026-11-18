@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { withModalMotion } from '../../../lib/modalMotion';
+import { withAnimatedDialog } from '../../../lib/withAnimatedDialog';
 import { useState } from 'react';
 import { X, AlertCircle, ExternalLink, ZoomIn, ZoomOut, RotateCw, FileText } from 'lucide-react';
 import { useDocument } from '../../../hooks/useApplications';
@@ -239,4 +239,4 @@ const OCRModal = ({ doc_id, onClose, onSubmit, isSubmitting }) => {
     );
 };
 
-export default withModalMotion(OCRModal, { when: (props) => props.isOpen !== false && Boolean(props.doc_id) });
+export default withAnimatedDialog(OCRModal, { when: (props) => props.isOpen !== false && Boolean(props.doc_id) });

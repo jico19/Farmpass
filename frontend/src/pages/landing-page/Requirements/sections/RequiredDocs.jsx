@@ -1,5 +1,5 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { FileText, AlertTriangle } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const DOCUMENTS = [
   { number: "1", title: "Handler's License",
@@ -28,10 +28,9 @@ const REMINDERS = [
 ];
 
 function DocCard({ doc }) {
-  const ref = useScrollReveal();
 
   return (
-    <div ref={ref}
+    <AnimatedReveal
       className="landing-card rdoc-card flex gap-4 items-start bg-white border border-stone-200 p-5 rounded-lg w-full">
 
       {/* Number badge */}
@@ -55,24 +54,23 @@ function DocCard({ doc }) {
           </span>
         </div>
       </div>
-    </div>
+    </AnimatedReveal>
   );
 }
 
 export default function RequiredDocs() {
-  const headerRef = useScrollReveal({ threshold: 0.2 });
 
   return (
     <section className="bg-brand-bg pt-16 relative">
       <div className="max-w-[54rem] mx-auto px-8 pb-16 max-[640px]:px-5 max-[640px]:pb-12">
 
         {/* Header */}
-        <div ref={headerRef} className="reveal-block flex items-center gap-3 pb-3 border-b-2 border-stone-200 mb-2">
+        <AnimatedReveal className="flex items-center gap-3 pb-3 border-b-2 border-stone-200 mb-2">
           <div className="w-10 h-10 bg-emerald-50 border border-emerald-200 rounded-md flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5 text-emerald-700" />
           </div>
           <h2 className="font-archivo text-2xl text-stone-900 font-bold tracking-tight">Required Documents</h2>
-        </div>
+        </AnimatedReveal>
         <p className="font-jakarta text-sm text-stone-600 leading-relaxed mb-6">
           Prepare these documents before starting your application. All documents must be clear, legible scans or photos.
         </p>

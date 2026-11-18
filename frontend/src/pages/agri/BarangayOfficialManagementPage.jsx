@@ -1,5 +1,5 @@
 import LoadingLayout from '../../components/ui/LoadingLayout';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
@@ -401,7 +401,7 @@ const OfficialFormContent = ({ user, onClose, onSubmit, isSubmitting, barangays 
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs">
-            <div className="bg-white w-full max-w-xl border border-stone-200 shadow-2xl rounded-2xl overflow-hidden max-h-[90vh] flex flex-col modal-enter">
+            <div className="bg-white w-full max-w-xl border border-stone-200 shadow-2xl rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-stone-200 bg-stone-50/70 shrink-0">
                     <div className="flex items-center gap-2.5">
@@ -598,6 +598,6 @@ const OfficialFormContent = ({ user, onClose, onSubmit, isSubmitting, barangays 
     );
 };
 
-const OfficialFormModal = withModalMotion(OfficialFormContent);
+const OfficialFormModal = withAnimatedDialog(OfficialFormContent);
 
 export default BarangayOfficialManagementPage;

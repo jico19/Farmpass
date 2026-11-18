@@ -1,27 +1,10 @@
 import LandingNavbar from '../../components/ui/LandingNavbar';
 import LandingFooter from '../../components/ui/LandingFooter';
 import { Outlet, useLocation } from "react-router-dom";
-import { useEffect, useLayoutEffect } from "react";
+import { useLayoutEffect } from "react";
 
 const LandingLayout = () => {
     const { pathname, hash, key } = useLocation();
-
-    useEffect(() => {
-        const onKey = (event) => {
-            if (["Tab", "Enter", " "].includes(event.key)) document.documentElement.dataset.landingInput = "keyboard";
-        };
-        const onPointer = () => {
-            document.documentElement.dataset.landingInput = "pointer";
-            document.querySelectorAll(".landing-motion .reveal-instant").forEach((element) => element.classList.remove("reveal-instant"));
-        };
-        document.addEventListener("keydown", onKey, true);
-        document.addEventListener("pointerdown", onPointer, true);
-        return () => {
-            document.removeEventListener("keydown", onKey, true);
-            document.removeEventListener("pointerdown", onPointer, true);
-            delete document.documentElement.dataset.landingInput;
-        };
-    }, []);
 
     useLayoutEffect(() => {
         window.scrollTo({ top: 0, behavior: "instant" });

@@ -1,6 +1,6 @@
 import Skeleton from 'react-loading-skeleton';
 import { useState } from 'react';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { 
     X, 
     AlertCircle, 
@@ -46,7 +46,7 @@ const DocumentViewModal = ({ doc_id, onClose }) => {
     // Error State
     if (isError) return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-4">
-            <div className="bg-white border border-stone-200 p-8 max-w-md w-full flex flex-col items-center text-center space-y-5 rounded-xl shadow-xl modal-enter">
+            <div className="bg-white border border-stone-200 p-8 max-w-md w-full flex flex-col items-center text-center space-y-5 rounded-xl shadow-xl">
                 <div className="w-14 h-14 bg-red-50 text-red-600 flex items-center justify-center rounded-xl border border-red-100">
                     <AlertCircle size={28} />
                 </div>
@@ -82,7 +82,7 @@ const DocumentViewModal = ({ doc_id, onClose }) => {
     return (
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-3 sm:p-6 md:p-10 overflow-hidden">
-            <div className="bg-white w-full max-w-7xl h-full max-h-[92vh] flex flex-col border border-stone-200 rounded-2xl shadow-2xl overflow-hidden modal-enter">
+            <div className="bg-white w-full max-w-7xl h-full max-h-[92vh] flex flex-col border border-stone-200 rounded-2xl shadow-2xl overflow-hidden">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 bg-white">
@@ -322,4 +322,4 @@ const DocumentViewModal = ({ doc_id, onClose }) => {
     );
 };
 
-export default withModalMotion(DocumentViewModal, { when: (props) => props.isOpen !== false && Boolean(props.doc_id) });
+export default withAnimatedDialog(DocumentViewModal, { when: (props) => props.isOpen !== false && Boolean(props.doc_id) });

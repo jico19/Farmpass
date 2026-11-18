@@ -8,7 +8,7 @@ import SignatoryDocumentOverview from './SignatoryDocumentOverview';
 import SignatoryOfficialRow from './SignatoryOfficialRow';
 import SignatoryEditorModal from './SignatoryEditorModal';
 import SignatoryModal from './SignatoryModal';
-import MotionPresence from '../../components/ui/MotionPresence';
+import AnimatedDialog from '../../components/motion/AnimatedDialog';
 
 const NEW_OFFICIAL = { name: '', title: '', position: 'MUNICIPAL_AGRICULTURIST', is_default: false };
 
@@ -122,10 +122,10 @@ const SignatoriesSection = () => {
                     )}
                 </div>
             </div>
-            <MotionPresence open={!!editor}>
+            <AnimatedDialog open={!!editor}>
                 <SignatoryEditorModal official={editor} busy={isSaving} disabled={loadError} onClose={() => setEditor(null)} onSave={saveOfficial} />
-            </MotionPresence>
-            <MotionPresence open={!!retiring}>
+            </AnimatedDialog>
+            <AnimatedDialog open={!!retiring} variant="alert">
                 <SignatoryModal title="Retire official?" busy={isSaving} onClose={() => setRetiring(null)}>
                     <div className="p-5 space-y-3 text-sm text-stone-600">
                         <p>{retiring?.name} will no longer be used on new documents.</p>
@@ -136,7 +136,7 @@ const SignatoriesSection = () => {
                         <button type="button" disabled={disabled} onClick={retireOfficial} className="min-h-11 px-4 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-red-700 disabled:opacity-50">{isSaving ? 'Retiring…' : 'Retire'}</button>
                     </div>
                 </SignatoryModal>
-            </MotionPresence>
+            </AnimatedDialog>
         </section>
     );
 };

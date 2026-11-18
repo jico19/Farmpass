@@ -1,6 +1,6 @@
-import useScrollReveal from "../../../../hooks/useScrollReveal";
 import { MapPin, Clock, Phone, Headphones } from "lucide-react";
 import LoginBg      from "../../../../assets/login-bg.png";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const CARDS = [
   {
@@ -38,12 +38,11 @@ const CARDS = [
 ];
 
 function ContactCard({ card }) {
-  const ref = useScrollReveal({ threshold: 0.1 });
 
   const Icon = card.icon;
 
   return (
-    <div ref={ref}
+    <AnimatedReveal
       className="landing-card landing-card-dark contact-card-inner bg-white/10 border border-white/20 p-5 rounded-lg box-border w-full">
 
       <div className="flex items-start gap-4">
@@ -72,7 +71,7 @@ function ContactCard({ card }) {
           </div>
         </div>
       </div>
-    </div>
+    </AnimatedReveal>
   );
 }
 

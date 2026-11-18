@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Search, X, Upload, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import AnimatedCollapse from '../../../../components/motion/AnimatedCollapse';
 
 const PERIODS = ['Jan–Mar', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec'];
 const control = 'min-h-11 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700';
@@ -8,20 +9,7 @@ export default function MapToolbar({ map = [], filters, onOpenUpload }) {
     const [query, setQuery] = useState('');
     const [searchOpen, setSearchOpen] = useState(false);
     const [filtersOpen, setFiltersOpen] = useState(false);
-    const comparisonRef = useRef(null);
-    const comparisonInputRef = useRef('keyboard');
-    useLayoutEffect(() => {
-        const panel = comparisonRef.current;
-        if (!filters.isCompareMode || !panel || comparisonInputRef.current === 'keyboard') return;
-        const animation = panel.animate([
-            { height: '0px', opacity: 0, transform: 'translateY(-4px)' },
-            { height: `${panel.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' },
-        ], {
-            duration: 200,
-            easing: getComputedStyle(document.documentElement).getPropertyValue('--ease-out-fluid').trim() || 'cubic-bezier(0.32, 0.72, 0, 1)',
-        });
-        return () => animation.cancel();
-    }, [filters.isCompareMode]);
+    const compareTriggerRef = useRef(null);
     const matches = map.filter(item => item.name.toLowerCase().includes(query.toLowerCase()));
     return (
         <header className="space-y-4">
@@ -75,14 +63,13 @@ export default function MapToolbar({ map = [], filters, onOpenUpload }) {
                                 {PERIODS.map((period, index) => <option key={period} value={index + 1} disabled={!filters.availableQuarters.includes(index + 1)}>{period}{!filters.availableQuarters.includes(index + 1) ? ' · No data' : ''}</option>)}
                             </select>
                         </label>
-                        <button type="button" aria-pressed={filters.isCompareMode} aria-expanded={filters.isCompareMode} aria-controls="map-comparison-controls" disabled={filters.years.length < 2} onClick={event => {
-                            comparisonInputRef.current = event.detail === 0 ? 'keyboard' : 'pointer';
+                        <button type="button" ref={compareTriggerRef} aria-pressed={filters.isCompareMode} aria-expanded={filters.isCompareMode} aria-controls="map-comparison-controls" disabled={filters.years.length < 2} onClick={() => {
                             filters.setIsCompareMode(!filters.isCompareMode);
                         }} className={`${control} font-semibold disabled:opacity-50 ${filters.isCompareMode ? 'bg-green-50 text-green-700' : ''}`}>Compare years</button>
                         {filters.hasActiveFilters && <button type="button" onClick={filters.clearFilters} className={`${control} inline-flex items-center gap-2`}><RotateCcw size={16} /> Reset</button>}
                     </div>
                 </div>
-                {filters.isCompareMode && <div id="map-comparison-controls" ref={comparisonRef} className="overflow-hidden">
+                <AnimatedCollapse id="map-comparison-controls" open={filters.isCompareMode}>
                     <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-stone-200 pt-3 text-sm text-stone-600">
                     <label className="flex items-center gap-2">Baseline year
                         <select value={filters.baselineYear} onChange={event => filters.setBaselineYear(event.target.value)} className={control}>
@@ -90,9 +77,12 @@ export default function MapToolbar({ map = [], filters, onOpenUpload }) {
                         </select>
                     </label>
                     <span>→ Target {filters.selectedYear} · Same quarter</span>
-                    <button type="button" onClick={() => filters.setIsCompareMode(false)} className="min-h-11 px-2 font-semibold text-green-700">Exit comparison</button>
+                    <button type="button" onClick={() => {
+                        filters.setIsCompareMode(false);
+                        compareTriggerRef.current?.focus({ preventScroll: true });
+                    }} className="min-h-11 px-2 font-semibold text-green-700">Exit comparison</button>
                     </div>
-                </div>}
+                </AnimatedCollapse>
             </div>
         </header>
     );

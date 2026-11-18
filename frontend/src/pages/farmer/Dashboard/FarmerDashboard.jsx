@@ -19,6 +19,7 @@ import useAuthStore from '../../../store/authStore';
 import BarChartComponent from '../../../components/charts/BarChart';
 import ChartTakeaway from '../../../components/ui/ChartTakeaway';
 import { useState, useEffect } from 'react';
+import AnimatedDialog from '../../../components/motion/AnimatedDialog';
 
 const FarmerDashboard = () => {
     const { data: metrics, isLoading, isError } = useGetFarmerDashboard();
@@ -150,8 +151,8 @@ const FarmerDashboard = () => {
             </div>
 
             {/* Verification Gate Modal */}
-            {showGateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-200">
+            <AnimatedDialog open={showGateModal} onDismiss={() => setShowGateModal(false)}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
                     <div className="bg-white border-2 border-stone-900 max-w-md w-full p-6 space-y-5 shadow-2xl">
                         <div className="flex items-start gap-4">
                             <div className="bg-amber-100 p-3 text-amber-800">
@@ -196,23 +197,23 @@ const FarmerDashboard = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            </AnimatedDialog>
 
-            {/* KPI Cards (2 columns on mobile, 3 on tablet/desktop) with subtle stagger */}
+            {/* KPI Cards (2 columns on mobile, 3 on tablet/desktop) */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div className="stagger-1">
+                <div>
                     <KPICard title="All Permits" value={kpis.total_applications} subtitle="Request history" icon={FileText} colorClass="bg-white text-stone-800 border-stone-200" />
                 </div>
-                <div className="stagger-2">
+                <div>
                     <KPICard title="Ready to Use" value={kpis.active_permits} subtitle="Approved/Active" icon={CircleCheck} colorClass="bg-green-50 text-green-700 border-green-600" />
                 </div>
-                <div className="col-span-2 sm:col-span-1 stagger-3">
+                <div className="col-span-2 sm:col-span-1">
                     <KPICard title="Pending Pay" value={kpis.pending_payments} subtitle="Payment required" icon={Clock} colorClass="bg-amber-50 text-amber-700 border-amber-600" />
                 </div>
             </div>
 
             {/* Dashboard Visual Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 view-enter">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Transport History Chart */}
                 <div className="lg:col-span-2 bg-white border border-stone-200 rounded-lg p-4 sm:p-6 flex flex-col">
                     <div className="mb-4 sm:mb-6 border-l-4 border-green-700 pl-3 sm:pl-4">

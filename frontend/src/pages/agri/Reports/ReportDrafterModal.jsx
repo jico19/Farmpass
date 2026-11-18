@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { withModalMotion } from '../../../lib/modalMotion';
+import { withAnimatedDialog } from '../../../lib/withAnimatedDialog';
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../../../lib/api";
 import { downloadBlob } from "../../../lib/utils";
@@ -188,7 +188,7 @@ const ReportDrafterModal = ({ isOpen, onClose, report, startDate, endDate }) => 
         if (e.target === e.currentTarget && !generating) onClose();
       }}
     >
-      <div className="bg-white border border-stone-200 rounded-xl w-full max-w-7xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden modal-enter">
+      <div className="bg-white border border-stone-200 rounded-xl w-full max-w-7xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Studio Header */}
         <div className="bg-stone-50 border-b border-stone-200 px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="space-y-0.5">
@@ -439,4 +439,4 @@ const ReportDrafterModal = ({ isOpen, onClose, report, startDate, endDate }) => 
   );
 };
 
-export default withModalMotion(ReportDrafterModal);
+export default withAnimatedDialog(ReportDrafterModal);

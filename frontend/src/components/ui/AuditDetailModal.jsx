@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { 
     X, 
     Copy, 
@@ -66,7 +66,7 @@ const AuditDetailModal = ({ isOpen, onClose, log, categoryInfo }) => {
                 if (e.target === e.currentTarget) onClose();
             }}
         >
-            <div className="bg-white w-full max-w-xl border border-stone-200 shadow-xl rounded-xl overflow-hidden modal-enter">
+            <div className="bg-white w-full max-w-xl border border-stone-200 shadow-xl rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-stone-200 bg-stone-50/50">
                     <div className="flex items-center gap-3">
@@ -189,4 +189,4 @@ const AuditDetailModal = ({ isOpen, onClose, log, categoryInfo }) => {
     );
 };
 
-export default withModalMotion(AuditDetailModal, { when: (props) => props.isOpen && Boolean(props.log) });
+export default withAnimatedDialog(AuditDetailModal, { when: (props) => props.isOpen && Boolean(props.log) });

@@ -1,4 +1,4 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const STATS = [
   { value: "43", label: "Barangays Covered" },
@@ -7,13 +7,12 @@ const STATS = [
 ];
 
 export default function Stats() {
-  const ref = useScrollReveal();
 
   return (
     <section className="bg-[#0f3320] relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none"
         style={{ backgroundImage: "repeating-linear-gradient(-60deg, transparent, transparent 30px, rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 31px)" }} />
-      <div ref={ref} className="reveal-block relative z-[1] max-w-[1200px] mx-auto px-10 grid grid-cols-3 max-[768px]:grid-cols-2 max-[768px]:px-6 max-[480px]:grid-cols-2">
+      <AnimatedReveal className="relative z-[1] max-w-[1200px] mx-auto px-10 grid grid-cols-3 max-[768px]:grid-cols-2 max-[768px]:px-6 max-[480px]:grid-cols-2">
         {STATS.map(({ value, label }) => (
           <div key={label} className="landing-stat relative px-8 py-11 text-center
             after:content-[''] after:absolute after:right-0 after:top-[25%] after:h-[50%] after:w-px
@@ -26,7 +25,7 @@ export default function Stats() {
             </div>
           </div>
         ))}
-      </div>
+      </AnimatedReveal>
     </section>
   );
 }

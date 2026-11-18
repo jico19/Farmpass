@@ -1,5 +1,5 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { Receipt, CreditCard } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const FEES = [
   { doc: "Veterinary Health Certificate",    fee: "₱50.00" },
@@ -8,11 +8,10 @@ const FEES = [
 ];
 
 export default function PermitFees() {
-  const sectionRef = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section className="bg-white border-y border-stone-200 py-16">
-      <div ref={sectionRef} className="reveal-block max-w-[54rem] mx-auto px-8 max-[640px]:px-5">
+      <AnimatedReveal className="max-w-[54rem] mx-auto px-8 max-[640px]:px-5">
 
         {/* Header */}
         <div className="flex items-center gap-3 pb-3 border-b border-stone-200 mb-2">
@@ -69,7 +68,7 @@ export default function PermitFees() {
             </p>
           </div>
         </div>
-      </div>
+      </AnimatedReveal>
     </section>
   );
 }

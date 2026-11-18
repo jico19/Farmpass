@@ -1,5 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
-import { withModalMotion } from '../../../lib/modalMotion';
+import { withAnimatedDialog } from '../../../lib/withAnimatedDialog';
 import { toast } from 'sonner';
 import { Activity, User, Phone, X, Check, PlusCircle, Calendar } from 'lucide-react';
 
@@ -77,7 +77,7 @@ const SurveyFormModal = ({ survey, onClose, onSubmit, isSubmitting }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-900/50 backdrop-blur-xs">
-            <div className="bg-white w-full max-w-lg border-t sm:border border-stone-200 shadow-xl rounded-t-2xl sm:rounded-xl overflow-hidden max-h-[92vh] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="bg-white w-full max-w-lg border-t sm:border border-stone-200 shadow-xl rounded-t-2xl sm:rounded-xl overflow-hidden max-h-[92vh] flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center px-4 sm:px-6 py-3.5 border-b border-stone-100 bg-stone-50/80 shrink-0">
                     <div className="flex items-center gap-2.5">
@@ -260,4 +260,4 @@ const SurveyFormModal = ({ survey, onClose, onSubmit, isSubmitting }) => {
     );
 };
 
-export default withModalMotion(SurveyFormModal, { duration: 200 });
+export default withAnimatedDialog(SurveyFormModal);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { withModalMotion } from '../../lib/modalMotion';
+import { withAnimatedDialog } from '../../lib/withAnimatedDialog';
 import { AlertCircle, HelpCircle, X, Trash2, CheckCircle2, RefreshCw } from 'lucide-react';
 
 /**
@@ -93,13 +93,13 @@ const ConfirmationModal = ({
 
     return (
         <div 
-            className="fixed inset-0 z-[2100] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs transition-opacity duration-200"
+            className="fixed inset-0 z-[2100] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs"
             onClick={(e) => {
                 // Close on clicking backdrop
                 if (e.target === e.currentTarget && !activeIsSubmitting) onClose();
             }}
         >
-            <div className="bg-white w-full max-w-md border border-stone-200 shadow-xl rounded-xl overflow-hidden modal-enter">
+            <div className="bg-white w-full max-w-md border border-stone-200 shadow-xl rounded-xl overflow-hidden">
                 {/* Header */}
                 <div className="flex justify-between items-center px-6 py-4 border-b border-stone-200 bg-stone-50/50">
                     <div className="flex items-center gap-3">
@@ -179,4 +179,4 @@ const ConfirmationModal = ({
     );
 };
 
-export default withModalMotion(ConfirmationModal, { duration: 100, variant: 'alert' });
+export default withAnimatedDialog(ConfirmationModal, { variant: 'alert' });

@@ -1,5 +1,5 @@
-import useScrollReveal from '../../../../hooks/useScrollReveal';
 import { UserCheck, ClipboardList, ShieldCheck, QrCode } from "lucide-react";
+import AnimatedReveal from '../../../../components/motion/AnimatedReveal';
 
 const STEPS = [
   {
@@ -33,26 +33,24 @@ const STEPS = [
 ];
 
 export default function HowItWorks() {
-  const headerRef = useScrollReveal({ threshold: 0.2 });
-  const stepsRef = useScrollReveal({ selector: ".hiw-step" });
 
   return (
     <section className="bg-brand-bg py-20 relative overflow-hidden">
       <div className="relative z-[1] max-w-[1200px] mx-auto px-10 max-[560px]:px-5">
         {/* Header */}
-        <div ref={headerRef} className="reveal-block text-center mb-14 max-[560px]:mb-10">
+        <AnimatedReveal className="text-center mb-14 max-[560px]:mb-10">
           <h2 className="font-archivo text-[clamp(28px,3.5vw,40px)] text-brand-primary leading-[1.12] mb-3 tracking-[-0.02em]">
             Application Workflow
           </h2>
           <p className="font-jakarta text-[15px] text-stone-600 leading-[1.75] max-w-[520px] mx-auto">
             From initial registration to checkpoint clearance in four auditable steps.
           </p>
-        </div>
+        </AnimatedReveal>
 
         {/* Steps Grid */}
-        <div ref={stepsRef} className="grid grid-cols-4 gap-6 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
+        <div className="grid grid-cols-4 gap-6 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
           {STEPS.map(({ number, icon: Icon, title, desc, deliverable }, i) => (
-            <div key={i} className="hiw-step flex flex-col relative">
+            <AnimatedReveal key={i} delay={Math.min(i * 0.02, 0.06)} className="hiw-step flex flex-col relative">
 
               {/* Step Card */}
               <div className="landing-card bg-white p-6 border border-stone-200 rounded-lg h-full flex flex-col justify-between">
@@ -84,7 +82,7 @@ export default function HowItWorks() {
                 </div>
 
               </div>
-            </div>
+            </AnimatedReveal>
           ))}
         </div>
       </div>
