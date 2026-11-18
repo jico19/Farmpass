@@ -20,6 +20,7 @@ import { createPortal } from "react-dom";
 import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
 import { cn } from "/src/lib/utils";
+import { mapMotionOptions } from "../../lib/mapMotion";
 
 const defaultStyles = {
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
@@ -626,15 +627,15 @@ function MapControls({
   const [waitingForLocation, setWaitingForLocation] = useState(false);
 
   const handleZoomIn = useCallback(() => {
-    map?.zoomTo(map.getZoom() + 1, { duration: 300 });
+    map?.zoomTo(map.getZoom() + 1, mapMotionOptions());
   }, [map]);
 
   const handleZoomOut = useCallback(() => {
-    map?.zoomTo(map.getZoom() - 1, { duration: 300 });
+    map?.zoomTo(map.getZoom() - 1, mapMotionOptions());
   }, [map]);
 
   const handleResetBearing = useCallback(() => {
-    map?.resetNorthPitch({ duration: 300 });
+    map?.resetNorthPitch(mapMotionOptions());
   }, [map]);
 
   const handleLocate = useCallback(() => {
@@ -648,7 +649,7 @@ function MapControls({
         map?.flyTo({
           center: [coords.longitude, coords.latitude],
           zoom: 14,
-          duration: 1500,
+           ...mapMotionOptions(),
         });
         onLocate?.(coords);
         setWaitingForLocation(false);
@@ -1164,6 +1165,7 @@ function MapClusterLayer(
         map.easeTo({
           center: coordinates,
           zoom,
+          ...mapMotionOptions(),
         });
       }
     };

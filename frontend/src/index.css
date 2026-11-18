@@ -283,8 +283,8 @@
   --ease-in-quart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
 }
 @custom-variant hover-only (@media (hover: hover));
-/* Public landing pages deliberately opt into motion, independent of OS settings.
-   Other portals retain the normal system reduced-motion behavior. */
+/* FarmPass defaults to full motion independently of OS settings.
+   Reduced-motion fallbacks apply when the app's full-motion mode is absent. */
 @custom-variant motion-safe {
   @media (prefers-reduced-motion: no-preference) { @slot; }
   &:where(.landing-motion, .landing-motion *) { @slot; }
@@ -802,5 +802,9 @@ html[data-ui-motion="full"] tbody tr:not(.landing-motion *) { transition: none; 
   --highlight-color: var(--color-stone-100);
 }
 @media (prefers-reduced-motion: reduce) {
-  .react-loading-skeleton::after { animation: none; }
+  html:not([data-ui-motion="full"]) .react-loading-skeleton::after { animation: none; }
+}
+/* Override the library's OS preference, preserving explicit per-skeleton opt-outs. */
+html[data-ui-motion="full"] .react-loading-skeleton {
+  --pseudo-element-display: block;
 }

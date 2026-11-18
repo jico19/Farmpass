@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useTransition, useRef } from "react";
-import { useMap, MapPopup } from '../../../../components/ui/map';
-import { TrendingUp, TrendingDown, Minus, ArrowRight, Truck } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { useMap } from '../../../../components/ui/map';
+import { mapMotionOptions } from '../../../../lib/mapMotion';
 
 /**
  * Calculates the exact bounding box and centroid directly from GeoJSON coordinates,
@@ -52,19 +52,17 @@ const MapDataHandler = ({
     setSelectedBarangay,
     isCompareMode = false,
     compareSurveyData = [],
-    compareYears = { baseline: '', target: '' },
+    unavailable = false,
     activeMapLayer = 'density', // 'density' | 'transport' | 'growth'
     transportVolumeData = []
 }) => {
     const { map, isLoaded } = useMap();
-    const [, startTransition] = useTransition();
 
     // Synchronous refs to prevent stale closure race conditions in high-frequency mouse events
     const hoveredIdRef = useRef(null);
     const selectedIdRef = useRef(null);
 
     const [hoveredFeature, setHoveredFeature] = useState(null);
-    const [selectedField, setSelectedField] = useState(null);
 
     // --- 1. SEARCH OR EXTERNAL FOCUS TRIGGER (ACCURATE BOUNDS ZOOM) ---
     useEffect(() => {
@@ -85,13 +83,8 @@ const MapDataHandler = ({
         if (!isLoaded || !mapData || !map) return;
 
         const item = mapData.find(b => b.name.toLowerCase() === selectedBarangay.toLowerCase());
-        const surveyRecord = surveyData?.find(s => s.barangay.toLowerCase() === selectedBarangay.toLowerCase()) || {};
-        const compareRecord = compareSurveyData?.find(s => s.barangay.toLowerCase() === selectedBarangay.toLowerCase()) || {};
-        const transportRecord = transportVolumeData?.find(t => t.barangay.toLowerCase() === selectedBarangay.toLowerCase()) || {};
         
         if (item) {
-            const breakdown = surveyRecord.breakdown || {};
-            const compareBreakdown = compareRecord.breakdown || {};
             
             // Accurately compute polygon bounds from GeoJSON rather than stored lat/lng
             const geoInfo = getPolygonBoundsAndCenter(item.geojson);
@@ -102,13 +95,13 @@ const MapDataHandler = ({
                 map.fitBounds(geoInfo.bounds, {
                     padding: 80,
                     maxZoom: 14.2,
-                    duration: 850
+                    ...mapMotionOptions(),
                 });
             } else if (!isNaN(lng) && !isNaN(lat)) {
                 map.easeTo({
                     center: [lng, lat],
                     zoom: 13.8,
-                    duration: 850
+                    ...mapMotionOptions(),
                 });
             }
 
@@ -119,29 +112,13 @@ const MapDataHandler = ({
                 selectedIdRef.current = item.id;
                 map.setFeatureState({ source: sourceId, id: item.id }, { selected: true });
 
-                setSelectedField({
-                    id: item.id,
-                    name: item.name,
-                    density: surveyRecord.density_level || 'No data',
-                    totalPigs: Number(surveyRecord.total_pigs || 0),
-                    breakdown,
-                    compareDensity: compareRecord.density_level || 'No data',
-                    compareTotalPigs: Number(compareRecord.total_pigs || 0),
-                    compareBreakdown,
-                    diffPigs: surveyRecord.has_observations && compareRecord.has_observations
-                        ? Number(surveyRecord.total_pigs) - Number(compareRecord.total_pigs) : null,
-                    transportedPigs: Number(transportRecord.total_transported || 0),
-                    transportLevel: transportRecord.volume_level || 'Stable',
-                    lng,
-                    lat
-                });
             });
 
             return () => {
                 cancelAnimationFrame(rafId);
             };
         }
-    }, [selectedBarangay, isLoaded, mapData, map, surveyData, compareSurveyData, transportVolumeData]);
+    }, [selectedBarangay, isLoaded, mapData, map]);
 
     // --- 2. SETUP GEOJSON DATA SOURCE ---
     useEffect(() => {
@@ -282,7 +259,7 @@ const MapDataHandler = ({
             map.setPaintProperty('fields-fill', 'fill-color', [
                 'match',
                 ['get', 'transportLevel'],
-                'Congested', '#7c3aed', // Purple
+                'Congested', '#075985', // Deep sky
                 'Heavy', '#3b82f6',     // Blue
                 'Moderate', '#06b6d4',  // Cyan
                 'Light', '#10b981',     // Green
@@ -300,7 +277,7 @@ const MapDataHandler = ({
                 '#94a3b8'
             ]);
         }
-    }, [map, isLoaded, activeMapLayer, isCompareMode]);
+    }, [map, isLoaded, activeMapLayer, isCompareMode, mapData, surveyData, compareSurveyData, transportVolumeData]);
 
     // Update density visibility based on filter checkboxes
     useEffect(() => {
@@ -322,6 +299,13 @@ const MapDataHandler = ({
             map.setFilter('fields-outline', null);
         }
     }, [map, isLoaded, activeFilters, activeMapLayer]);
+
+    useEffect(() => {
+        if (!map || !isLoaded) return;
+        for (const layer of ['fields-fill', 'fields-outline']) {
+            if (map.getLayer(layer)) map.setLayoutProperty(layer, 'visibility', unavailable ? 'none' : 'visible');
+        }
+    }, [map, isLoaded, unavailable, mapData, surveyData]);
 
     // --- 4. MAP INTERACTION EVENTS (SYNCHRONOUS REF TRACKING) ---
     useEffect(() => {
@@ -386,7 +370,6 @@ const MapDataHandler = ({
             const feature = e.features && e.features[0];
             if (feature) {
                 const bName = feature.properties.name;
-                const item = mapData?.find(b => b.name.toLowerCase() === bName.toLowerCase());
 
                 if (selectedIdRef.current !== null && selectedIdRef.current !== feature.id) {
                     map.setFeatureState({ source: sourceId, id: selectedIdRef.current }, { selected: false });
@@ -395,41 +378,10 @@ const MapDataHandler = ({
                 selectedIdRef.current = feature.id;
                 map.setFeatureState({ source: sourceId, id: feature.id }, { selected: true });
 
-                const breakdown = JSON.parse(feature.properties.breakdown || '{}');
-                const compareBreakdown = JSON.parse(feature.properties.compareBreakdown || '{}');
-
-                // Smoothly frame the clicked polygon using its true GeoJSON bounds
-                const geoInfo = item ? getPolygonBoundsAndCenter(item.geojson) : null;
-                if (geoInfo) {
-                    map.fitBounds(geoInfo.bounds, {
-                        padding: 80,
-                        maxZoom: 14.2,
-                        duration: 850
-                    });
-                }
-
                 if (setSelectedBarangay) {
                     setSelectedBarangay(bName);
                 }
 
-                startTransition(() => {
-                    setSelectedField({
-                        id: feature.id,
-                        name: bName,
-                        density: feature.properties.density,
-                        totalPigs: Number(feature.properties.totalPigs || 0),
-                        breakdown,
-                        compareDensity: feature.properties.compareDensity,
-                        compareTotalPigs: Number(feature.properties.compareTotalPigs || 0),
-                        compareBreakdown,
-                        transportedPigs: Number(feature.properties.transportedPigs || 0),
-                        transportLevel: feature.properties.transportLevel,
-                        diffPigs: Number(feature.properties.diffPigs || 0),
-                        hasComparison: feature.properties.hasComparison,
-                        lng: e.lngLat.lng,
-                        lat: e.lngLat.lat
-                    });
-                });
             }
         };
 
@@ -446,14 +398,13 @@ const MapDataHandler = ({
                 }
             }
             selectedIdRef.current = null;
-            setSelectedField(null);
             if (setSelectedBarangay) {
                 setSelectedBarangay(null);
             }
         };
 
         const onKeyDown = (e) => {
-            if (e.key === 'Escape') {
+            if (e.key === 'Escape' && !document.querySelector('dialog[open]')) {
                 if (selectedIdRef.current !== null) {
                     try {
                         map.setFeatureState({ source: sourceId, id: selectedIdRef.current }, { selected: false });
@@ -462,7 +413,6 @@ const MapDataHandler = ({
                     }
                 }
                 selectedIdRef.current = null;
-                setSelectedField(null);
                 if (setSelectedBarangay) {
                     setSelectedBarangay(null);
                 }
@@ -493,22 +443,10 @@ const MapDataHandler = ({
         };
     }, [map, isLoaded, setSelectedBarangay, mapData]);
 
-    const handleClosePopup = useCallback(() => {
-        if (selectedIdRef.current !== null && map) {
-            try {
-                map.setFeatureState({ source: 'agri-fields', id: selectedIdRef.current }, { selected: false });
-            } catch {
-                // Safe guard
-            }
-        }
-        selectedIdRef.current = null;
-        setSelectedField(null);
-    }, [map]);
-
     return (
         <>
             {/* Quick Floating Cursor HUD Tooltip */}
-            {hoveredFeature && !selectedField && (
+            {!unavailable && hoveredFeature && (
                 <div 
                     className="pointer-events-none absolute z-[1500] bg-stone-900 text-white px-2.5 py-1 rounded-lg border border-stone-800 shadow-xs flex items-center gap-2 transform -translate-x-1/2 -translate-y-full mb-3 font-sans"
                     style={{ left: `${hoveredFeature.x}px`, top: `${hoveredFeature.y - 8}px` }}
@@ -538,83 +476,6 @@ const MapDataHandler = ({
                 </div>
             )}
 
-            {/* Interactive Selected Barangay Popover */}
-            {(() => {
-                const activePopupField = (selectedBarangay && selectedField && selectedBarangay.toLowerCase() === selectedField.name.toLowerCase()) 
-                    ? selectedField 
-                    : null;
-                if (!activePopupField) return null;
-
-                return (
-                    <MapPopup
-                        key={`${activePopupField.lng}-${activePopupField.lat}`}
-                        latitude={activePopupField.lat}
-                        longitude={activePopupField.lng}
-                        onClose={handleClosePopup}
-                        closeOnClick={true}
-                        className="p-0 border-none shadow-none"
-                    >
-                        <div className="w-64 bg-white rounded-xl border border-stone-200 overflow-hidden font-sans p-3.5 space-y-2.5 shadow-md">
-                            <div className="flex items-center justify-between gap-2 border-b border-stone-200 pb-2">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-stone-400 block">
-                                        Barangay
-                                    </span>
-                                    <h3 className="text-sm font-black uppercase tracking-tight text-stone-800 leading-tight">
-                                        {activePopupField.name}
-                                    </h3>
-                                </div>
-                                <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-green-50 text-green-700 border border-green-600/40 shrink-0">
-                                    {activePopupField.density}
-                                </span>
-                            </div>
-
-                            {/* Headcount Metrics Card */}
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-stone-50 p-2 rounded-lg border border-stone-200">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-stone-400 block">Total Swine</span>
-                                    <span className="text-sm font-black text-stone-800 font-mono">
-                                        {activePopupField.density === 'No data' ? 'No data' : activePopupField.totalPigs.toLocaleString()}
-                                    </span>
-                                </div>
-                                <div className="bg-stone-50 p-2 rounded-lg border border-stone-200">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-stone-400 block">Outbound</span>
-                                    <span className="text-sm font-black text-sky-700 font-mono flex items-center gap-1">
-                                        <Truck size={12} />
-                                        {activePopupField.transportedPigs.toLocaleString()}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Compare Mode Differential */}
-                            {isCompareMode && activePopupField.density !== 'No data' && activePopupField.compareDensity !== 'No data' && (
-                                <div className="p-2 bg-stone-50 rounded-lg border border-stone-200 flex items-center justify-between text-xs">
-                                    <span className="text-[10px] font-medium text-stone-600">
-                                        {compareYears.baseline} ➔ {compareYears.target}:
-                                    </span>
-                                    <span className={`font-mono font-bold inline-flex items-center gap-0.5 ${
-                                        activePopupField.diffPigs > 0 ? 'text-green-700' : activePopupField.diffPigs < 0 ? 'text-red-700' : 'text-stone-500'
-                                    }`}>
-                                        {activePopupField.diffPigs > 0 && <TrendingUp size={12} />}
-                                        {activePopupField.diffPigs < 0 && <TrendingDown size={12} />}
-                                        {activePopupField.diffPigs === 0 && <Minus size={12} />}
-                                        {activePopupField.diffPigs > 0 ? `+${activePopupField.diffPigs}` : activePopupField.diffPigs}
-                                    </span>
-                                </div>
-                            )}
-
-                            <div className="pt-1 border-t border-stone-200 flex items-center justify-between">
-                                <p className="text-[10px] text-stone-500 font-medium">
-                                    Selected in inspector dossier
-                                </p>
-                                <span className="text-[10px] font-black uppercase tracking-wider text-green-700 flex items-center gap-0.5">
-                                    Active <ArrowRight size={10} />
-                                </span>
-                            </div>
-                        </div>
-                    </MapPopup>
-                );
-            })()}
         </>
     );
 };

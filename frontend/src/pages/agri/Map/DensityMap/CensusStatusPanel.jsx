@@ -10,8 +10,9 @@ const CensusStatusPanel = ({
     surveyLoading = false, surveyPlaceholder = false, surveyError = false,
     comparisonLoading = false, comparisonPlaceholder = false, comparisonError = false,
     transportLoading = false, transportError = false,
+    compareSurvey = [], topHotspots = [],
 }) => {
-    const { isCompareMode, selectedYear, selectedQuarter, baselineYear, selectedBarangay, setSelectedBarangay } = filters;
+    const { isCompareMode, selectedYear, selectedQuarter, baselineYear, selectedBarangay, setSelectedBarangay, activeMapLayer } = filters;
     const headingRef = useRef(null);
     const selectedRecord = selectedBarangay
         ? survey.find(row => row.barangay.toLowerCase() === selectedBarangay.toLowerCase()) : null;
@@ -26,6 +27,12 @@ const CensusStatusPanel = ({
     const pigs = selectedBarangay ? Number(selectedRecord?.total_pigs ?? 0) : totalPigs;
     const share = totalPigs > 0 ? (pigs / totalPigs * 100).toFixed(1) : null;
     const censusReady = !censusUpdating && !surveyError;
+    const baselineRecord = compareSurvey.find(row => row.barangay.toLowerCase() === selectedBarangay?.toLowerCase());
+    const selectedComparison = selectedRecord?.has_observations && baselineRecord?.has_observations
+        && selectedRecord.quarter === baselineRecord.quarter
+        ? Number(selectedRecord.total_pigs) - Number(baselineRecord.total_pigs) : null;
+    const outflows = selectedBarangay ? transportRecord?.total_transported
+        : transportVolume.length ? transportVolume.reduce((sum, row) => sum + Number(row.total_transported || 0), 0) : null;
     const censusDate = periodRecord?.census_date
         ? new Date(`${periodRecord.census_date}T00:00:00`).toLocaleDateString('en-PH', {
             month: 'short', day: 'numeric', year: 'numeric',
@@ -33,7 +40,7 @@ const CensusStatusPanel = ({
 
     return (
         <section aria-label={selectedBarangay ? `${selectedBarangay} census` : 'Sariaya census'}
-            className="min-w-0 rounded-xl border border-stone-200 bg-white p-4 font-sans text-sm text-stone-800 shadow-xs sm:p-5">
+            className="min-w-0 bg-white p-4 font-sans text-sm text-stone-800 sm:p-5">
             {selectedBarangay && (
                 <button type="button" onClick={() => {
                     setSelectedBarangay(null);
@@ -57,6 +64,31 @@ const CensusStatusPanel = ({
                 </p>
             </header>
 
+            {activeMapLayer === 'transport' && (
+                <div className="space-y-2 border-b border-stone-200 py-5">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold"><Truck size={16} className="text-sky-700" /> Permit outflows</h3>
+                    <p className="text-xs text-stone-600">{PERIOD_LABELS[selectedQuarter]} {selectedYear}</p>
+                    {transportLoading ? <p role="status">Loading transport figures…</p>
+                        : transportError ? <p role="alert">Transport figures could not be loaded. Refresh to try again.</p>
+                            : outflows != null ? <p className="text-4xl font-semibold tabular-nums">{Number(outflows).toLocaleString()} <span className="text-sm font-normal text-stone-600">pigs</span></p>
+                                : <p className="text-stone-600">Transport figures unavailable.</p>}
+                </div>
+            )}
+            {activeMapLayer === 'growth' && selectedBarangay && (
+                <div className="space-y-2 border-b border-stone-200 py-5">
+                    <h3 className="text-sm font-semibold">Population change</h3>
+                    <p className="text-xs text-stone-600">{baselineYear} → {selectedYear} · {PERIOD_LABELS[selectedQuarter]}</p>
+                    {comparisonError || surveyError ? <p role="alert">Comparison could not be loaded.</p>
+                        : censusUpdating ? <p role="status">Updating comparison…</p>
+                            : selectedComparison === null ? <p>No observations in both periods for this barangay.</p>
+                                : <>
+                                    <p className="text-3xl font-semibold tabular-nums">{selectedComparison > 0 ? '+' : ''}{selectedComparison.toLocaleString()} <span className="text-sm font-normal text-stone-600">pigs</span></p>
+                                    <p className="text-xs text-stone-600">{Number(baselineRecord.total_pigs).toLocaleString()} → {Number(selectedRecord.total_pigs).toLocaleString()} recorded pigs</p>
+                                    <p className="text-xs text-stone-600">{Number(baselineRecord.total_pigs) > 0 ? `${(selectedComparison / Number(baselineRecord.total_pigs) * 100).toFixed(1)}% change` : 'Percentage change unavailable because the baseline is zero.'}</p>
+                                </>}
+                </div>
+            )}
+
             {censusReady && periodRecord?.period_status === 'in_progress' && (
                 <div role="status" className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-900">
                     <p className="text-xs font-semibold">In progress</p>
@@ -66,7 +98,7 @@ const CensusStatusPanel = ({
                 </div>
             )}
 
-            <div aria-busy={censusUpdating} className="space-y-5 py-5">
+            <div aria-busy={censusUpdating} className="flex flex-col gap-5 py-5">
                 <p role="status" className={censusUpdating ? 'text-xs text-stone-600' : 'sr-only'}>
                     {censusUpdating ? (surveyLoading ? 'Loading census…' : 'Updating census…') : ''}
                 </p>
@@ -139,7 +171,7 @@ const CensusStatusPanel = ({
                 )}
 
                 {censusReady && !selectedBarangay && isCompareMode && (
-                    <div className="space-y-3 border-t border-stone-200 pt-4">
+                    <div className={`space-y-3 border-t border-stone-200 pt-4 ${activeMapLayer === 'growth' ? 'order-first' : ''}`}>
                         <h3 className="text-base font-semibold">{baselineYear} to {selectedYear}</h3>
                         {comparisonError ? (
                             <p role="alert" className="text-stone-600">Comparison could not be loaded. Refresh the page to try again.</p>
@@ -173,6 +205,21 @@ const CensusStatusPanel = ({
                     </div>
                 )}
 
+                {censusReady && !selectedBarangay && topHotspots.length > 0 && (
+                    <div className="space-y-2 border-t border-stone-200 pt-4">
+                        <h3 className="text-base font-semibold">Largest recorded populations</h3>
+                        <ol className="divide-y divide-stone-100">
+                            {topHotspots.map(spot => <li key={spot.name}>
+                                <button type="button" onClick={() => { setSelectedBarangay(spot.name); headingRef.current?.focus(); }}
+                                    className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-3 text-left hover:bg-green-50 focus-visible:outline-2 focus-visible:outline-green-700">
+                                    <span className="text-xs tabular-nums text-stone-500">{spot.rank}</span>
+                                    <span className="min-w-0 flex-1 text-sm font-medium">{spot.name}</span>
+                                    <span className="text-sm font-semibold tabular-nums">{spot.totalPigs.toLocaleString()}</span>
+                                </button>
+                            </li>)}
+                        </ol>
+                    </div>
+                )}
                 {censusReady && hasObservations && operationalTakeaway && (
                     <div className="space-y-3 border-t border-stone-200 pt-4">
                         <h3 className="text-base font-semibold">{selectedBarangay ? 'Census note' : 'Census summary'}</h3>
@@ -227,7 +274,7 @@ const CensusStatusPanel = ({
                 )}
             </div>
 
-            {selectedBarangay && (
+            {selectedBarangay && activeMapLayer !== 'transport' && (
                 <div className="space-y-2 border-t border-stone-200 pt-4">
                     <h3 className="flex items-start gap-2 text-sm font-semibold">
                         <Truck size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-sky-700" />

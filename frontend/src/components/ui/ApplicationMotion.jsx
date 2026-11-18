@@ -1,6 +1,8 @@
 import { useLayoutEffect } from 'react';
 
-/** Shared by auth, every portal, and overlays rendered into document.body. */
+/** Full motion is the product default, independent of Windows/OS animation settings.
+ * Shared by auth, every portal, and overlays rendered into document.body.
+ */
 export default function ApplicationMotion({ children }) {
     useLayoutEffect(() => {
         const root = document.documentElement;

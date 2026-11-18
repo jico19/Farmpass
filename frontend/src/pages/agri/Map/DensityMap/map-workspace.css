@@ -1,0 +1,34 @@
+.map-legend-panel {
+    transform-origin: bottom right;
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+    visibility: hidden;
+    transition: opacity 100ms var(--ease-in-quart), transform 100ms var(--ease-in-quart), visibility 0s 100ms;
+}
+
+.map-legend-panel[data-open="true"] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    transition: opacity 150ms var(--ease-out-fluid), transform 150ms var(--ease-out-fluid), visibility 0s;
+}
+
+.map-legend-chevron {
+    transition: transform 150ms var(--ease-smooth);
+}
+
+.map-legend-chevron[data-open="true"] {
+    transform: rotate(180deg);
+}
+
+[data-instant="true"] > .map-legend-panel,
+[data-instant="true"] .map-legend-chevron {
+    transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:not([data-ui-motion="full"]) .map-legend-panel,
+    html:not([data-ui-motion="full"]) .map-legend-chevron {
+        transition: none;
+    }
+}
